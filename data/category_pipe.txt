@@ -1,0 +1,11 @@
+1|Sports|MLB|Major League Baseball
+2|Sports|NHL|National Hockey League
+3|Sports|NFL|National Football League
+4|Sports|NBA|National Basketball Association
+5|Sports|MLS|Major League Soccer
+6|Shows|Musicals|Musical theatre
+7|Shows|Plays|All non-musical theatre
+8|Shows|Opera|All opera and light opera
+9|Concerts|Pop|All rock and pop music concerts
+10|Concerts|Jazz|All jazz singers and bands
+11|Concerts|Classical|All symphony, concerto, and choir concerts
