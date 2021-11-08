@@ -5,13 +5,27 @@
 - [Amazon Redshift TICKIT Sample Database](https://docs.aws.amazon.com/redshift/latest/dg/c_sampledb.html)
 
 ## TICKIT Tables
- - `tickit.saas.category`
- - `tickit.saas.event`
- - `tickit.saas.venue`
- - `tickit.crm.users`
- - `tickit.date`
- - `tickit.listing`
- - `tickit.sales`
+
+- `tickit.saas.category`
+- `tickit.saas.event`
+- `tickit.saas.venue`
+- `tickit.crm.users`
+- `tickit.date`
+- `tickit.listing`
+- `tickit.sales`
+
+## Naming Conventions
+
+```text
++-------------+--------------------------------------------------------------------+
+| Prefix      | Description                                                        |
++-------------+--------------------------------------------------------------------+
+| _source     | Data Source metadata only (org. call _raw in video)                |
+| _raw        | Raw/Bronze data from data sources (org. call _converted in video)  |
+| _refined    | Refined/Silver data - raw data with initial ELT/cleansing applied  |
+| _aggregated | Gold/Aggregated data - aggregated/joined refined data              |
++-------------+--------------------------------------------------------------------+
+```
 
 ## Demonstration Steps
 
@@ -51,7 +65,8 @@ Show in console, execute from command line.
 8. Show effectiveness of partitions
 9. Show CloudFormation template
 
-A view in Amazon Athena is a logical, not a physical table. The query that defines a view runs each time the view is referenced in a query.
+A view in Amazon Athena is a logical, not a physical table. The query that defines a view runs each time the view is
+referenced in a query.
 
 ## Commands
 
