@@ -1,9 +1,17 @@
 # Data Lake Demo
 
-Source code for video demonstration detailed in the post, [Building a Simple Data Lake on AWS](https://garystafford.medium.com/building-a-simple-data-lake-on-aws-df21ca092e32). Build a simple data lake on AWS using a combination of services, including AWS Glue Data Catalog, AWS Glue Crawlers, AWS Glue Jobs, AWS Glue Studio, Amazon Athena, and Amazon S3.
-## References
+Source code for video demonstration detailed in the
+post, [Building a Simple Data Lake on AWS](https://garystafford.medium.com/building-a-simple-data-lake-on-aws-df21ca092e32)
+. Build a simple data lake on AWS using a combination of services, including AWS Glue Data Catalog, AWS Glue Crawlers,
+AWS Glue Jobs, AWS Glue Studio, Amazon Athena, and Amazon S3.
 
-- [Amazon Redshift TICKIT Sample Database](https://docs.aws.amazon.com/redshift/latest/dg/c_sampledb.html)
+## Architecture
+
+![Architecture](./diagram/diagram.png)
+
+## TICKIT Sample Database
+
+[Amazon Redshift TICKIT Sample Database](https://docs.aws.amazon.com/redshift/latest/dg/c_sampledb.html)
 
 ## TICKIT Tables
 
