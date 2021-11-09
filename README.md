@@ -36,7 +36,7 @@ AWS Glue Jobs, AWS Glue Studio, Amazon Athena, and Amazon S3.
 +-------------+--------------------------------------------------------------------+
 ```
 
-Note there were two small changes made to the source code, as compared to the video demonstration, to help clarify the flow of data in the demonstration. I have switched the prefix for the (7) data source AWS Glue Data Catalog table’s prefix from `raw_` from `source_`. I have also changed the (7) Raw/Bronze AWS Glue Data Catalog table’s prefix from `converted_` to `raw_`. The final data flow is 1) `source_`, 2) `raw_`, 3) `refined_`, and 4) `agg_` (aggregated).
+There were two small changes made to the source code, as compared to the video demonstration, to help clarify the flow of data in the demonstration. The prefix for the (7) data source AWS Glue Data Catalog table’s prefix was switched from `raw_` from `source_`. Also, the (7) Raw/Bronze AWS Glue Data Catalog table’s prefix was switched from `converted_` to `raw_`. The final data flow is 1) `source_`, 2) `raw_`, 3) `refined_`, and 4) `agg_` (aggregated).
 
 ## Commands
 
