@@ -2,8 +2,8 @@
 
 Source code for video demonstration detailed in the
 post, [Building a Simple Data Lake on AWS](https://garystafford.medium.com/building-a-simple-data-lake-on-aws-df21ca092e32)
-. Build a simple data lake on AWS using a combination of services, including Amazon MWAA, AWS Glue Data Catalog, AWS Glue Crawlers,
-AWS Glue Jobs, AWS Glue Studio, Amazon Athena, and Amazon S3.
+. Build a simple data lake on AWS using a combination of services, including Amazon MWAA, AWS Glue Data Catalog, AWS
+Glue Crawlers, AWS Glue Jobs, AWS Glue Studio, Amazon Athena, and Amazon S3.
 
 ## Architecture
 
@@ -37,6 +37,11 @@ AWS Glue Jobs, AWS Glue Studio, Amazon Athena, and Amazon S3.
 ```
 
 ## AWS CLI Commands
+
+There were two small changes made to the source code, as compared to the video demonstration, to help clarify the flow
+of data in the demonstration. The prefix for the (7) data source AWS Glue Data Catalog table’s prefix was switched
+from `raw_` from `source_`. Also, the (7) Raw/Bronze AWS Glue Data Catalog table’s prefix was switched from `converted_`
+to `raw_`. The final data flow is 1) `source_`, 2) `raw_`, 3) `refined_`, and 4) `agg_` (aggregated).
 
 ```shell
 DATA_LAKE_BUCKET="your-data-lake-bucket"
@@ -88,5 +93,5 @@ aws s3api list-objects-v2 \
   --bucket ${DATA_LAKE_BUCKET} \
   --prefix "tickit/" \
   --query "Contents[].Key" \
-
+  --output table
 ```
