@@ -2,7 +2,7 @@
 
 Source code for video demonstration detailed in the
 post, [Building a Simple Data Lake on AWS](https://garystafford.medium.com/building-a-simple-data-lake-on-aws-df21ca092e32)
-. Build a simple data lake on AWS using a combination of services, including AWS Glue Data Catalog, AWS Glue Crawlers,
+. Build a simple data lake on AWS using a combination of services, including Amazon MWAA, AWS Glue Data Catalog, AWS Glue Crawlers,
 AWS Glue Jobs, AWS Glue Studio, Amazon Athena, and Amazon S3.
 
 ## Architecture
@@ -36,7 +36,7 @@ AWS Glue Jobs, AWS Glue Studio, Amazon Athena, and Amazon S3.
 +-------------+--------------------------------------------------------------------+
 ```
 
-## Commands
+## AWS CLI Commands
 
 ```shell
 DATA_LAKE_BUCKET="your-data-lake-bucket"
@@ -45,28 +45,23 @@ aws s3 rm "s3://${DATA_LAKE_BUCKET}/tickit/" --recursive
 
 aws glue delete-database --name tickit_demo
 
-echo '
-{
-  "DatabaseInput": {
-        "Name": "tickit_demo",
-        "Description": "Track sales activity for the fictional TICKIT web site"
-  }
-}' > glue_db.json
-
-aws glue create-database --cli-input-json file://glue_db.json
+aws glue create-database \
+  --database-input '{"Name": "tickit_demo", "Description": "Track sales activity for the fictional TICKIT web site"}'
 
 aws glue get-tables \
   --database-name tickit_demo \
-  --query 'TableList[].Name' \
+  --query "TableList[].Name" \
   --output table
 
 aws glue start-crawler --name tickit_postgresql
 aws glue start-crawler --name tickit_mysql
 aws glue start-crawler --name tickit_mssql
 
-aws glue get-jobs \
-  --query 'Jobs[].Name' \
-  | sort | grep _raw
+aws glue get-tables \
+  --database-name tickit_demo \
+  --query "TableList[].Name" \
+  --expression "source_*"  \
+  --output table
 
 aws glue start-job-run --job-name tickit_public_category_raw
 aws glue start-job-run --job-name tickit_public_date_raw
@@ -86,6 +81,12 @@ aws glue start-job-run --job-name tickit_public_venue_refine
 
 aws glue get-tables \
   --database-name tickit_demo \
-  --query 'TableList[].Name' \
+  --query "TableList[].Name" \
   --output table
+
+aws s3api list-objects-v2 \
+  --bucket ${DATA_LAKE_BUCKET} \
+  --prefix "tickit/" \
+  --query "Contents[].Key" \
+
 ```
