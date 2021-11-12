@@ -11,7 +11,7 @@ Resources:
                 Description: "Track sales activity for the fictional TICKIT web site"
             CatalogId: !Ref "AWS::AccountId"
 
-    GlueCrawler:
+    GlueCrawlerMSSQL:
         Type: "AWS::Glue::Crawler"
         Properties:
             Name: "tickit_mssql"
@@ -27,7 +27,7 @@ Resources:
                 DeleteBehavior: "DEPRECATE_IN_DATABASE"
             TablePrefix: "source_"
 
-    GlueCrawler2:
+    GlueCrawlerMySQL:
         Type: "AWS::Glue::Crawler"
         Properties:
             Name: "tickit_mysql"
@@ -43,7 +43,7 @@ Resources:
                 DeleteBehavior: "DEPRECATE_IN_DATABASE"
             TablePrefix: "source_"
 
-    GlueCrawler3:
+    GlueCrawlerPostgreSQL:
         Type: "AWS::Glue::Crawler"
         Properties:
             Name: "tickit_postgresql"
@@ -59,7 +59,7 @@ Resources:
                 DeleteBehavior: "DEPRECATE_IN_DATABASE"
             TablePrefix: "source_"
 
-    GlueConnection:
+    GlueConnectionMSSQL:
         Type: "AWS::Glue::Connection"
         Properties:
             ConnectionInput: 
@@ -77,7 +77,7 @@ Resources:
                 Name: "tickit_mssql"
             CatalogId: !Ref "AWS::AccountId"
 
-    GlueConnection2:
+    GlueConnectionMySQL:
         Type: "AWS::Glue::Connection"
         Properties:
             ConnectionInput: 
@@ -95,7 +95,7 @@ Resources:
                 Name: "tickit_mysql"
             CatalogId: !Ref "AWS::AccountId"
 
-    GlueConnection3:
+    GlueConnectionPostgreSQL:
         Type: "AWS::Glue::Connection"
         Properties:
             ConnectionInput: 
