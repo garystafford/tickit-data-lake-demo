@@ -1,18 +1,20 @@
 CREATE DATABASE tickit;
-
 USE tickit;
 
-CREATE TABLE listing(
-	listid integer not null,
-	sellerid integer not null,
-	eventid integer not null,
+CREATE TABLE IF NOT EXISTS tickit.listing
+(
+	listid int not null,
+	sellerid int not null,
+	eventid int not null,
 	dateid smallint not null,
 	numtickets smallint not null,
-	priceperticket decimal(8,2),
-	totalprice decimal(8,2),
-	listtime timestamp);
+	priceperticket decimal(8,2) not null,
+	totalprice decimal(8,2) not null,
+	listtime timestamp not null
+)
+COMMENT 'TICKIT event listings for sale';
 
-CREATE TABLE date(
+CREATE TABLE IF NOT EXISTS tickit.date(
 	dateid smallint not null,
 	caldate date not null,
 	day character(3) not null,
@@ -20,16 +22,22 @@ CREATE TABLE date(
 	month character(5) not null,
 	qtr character(5) not null,
 	year smallint not null,
-	holiday boolean not null default 0);
+	holiday boolean not null default 0
+)
+COMMENT 'TICKIT transaction date details';
 
-CREATE TABLE sales(
-	salesid integer not null,
-	listid integer not null,
-	sellerid integer not null,
-	buyerid integer not null,
-	eventid integer not null,
+CREATE TABLE IF NOT EXISTS tickit.sales
+(
+	salesid int not null,
+	listid int not null,
+	sellerid int not null,
+	buyerid int not null,
+	eventid int not null,
 	dateid smallint not null,
 	qtysold smallint not null,
-	pricepaid decimal(8,2),
-	commission decimal(8,2),
-	saletime varchar(20));
+	pricepaid decimal(8,2) not null,
+	commission decimal(8,2) not null,
+	saletime varchar(20) not null
+)
+COMMENT 'TICKIT sales transactions';
+
