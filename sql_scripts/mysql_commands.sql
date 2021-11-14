@@ -32,4 +32,4 @@ CREATE TABLE sales(
 	qtysold smallint not null,
 	pricepaid decimal(8,2),
 	commission decimal(8,2),
-	saletime timestamp);
+	saletime varchar(20));
