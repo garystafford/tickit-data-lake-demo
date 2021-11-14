@@ -1,0 +1,583 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+    Generator: "former2"
+Description: "Stack for 'Building a Data Lake on AWS' Video Demonstration"
+Parameters:
+  SecurityGroupConnection:
+    Type: String
+    Default: "sg-1ab2c3d4e5"
+  SubnetConnection:
+    Type: String
+    Default: "subnet-1a2b3c"
+Resources:
+    GlueDatabase:
+        Type: "AWS::Glue::Database"
+        Properties:
+            DatabaseInput: 
+                Name: "tickit_demo"
+                Description: "Track sales activity for the fictional TICKIT web site"
+            CatalogId: !Ref "AWS::AccountId"
+
+    GlueCrawlerMSSQL:
+        Type: "AWS::Glue::Crawler"
+        Properties:
+            Name: "tickit_mssql"
+            Role: "service-role/AWSGlueServiceRole-demo"
+            Targets: 
+                JdbcTargets: 
+                  -
+                    ConnectionName: "tickit_mssql"
+                    Path: "tickit/crm/%"
+            DatabaseName: "tickit_demo"
+            SchemaChangePolicy: 
+                UpdateBehavior: "UPDATE_IN_DATABASE"
+                DeleteBehavior: "DEPRECATE_IN_DATABASE"
+            TablePrefix: "source_"
+
+    GlueCrawlerMySQL:
+        Type: "AWS::Glue::Crawler"
+        Properties:
+            Name: "tickit_mysql"
+            Role: "service-role/AWSGlueServiceRole-demo"
+            Targets: 
+                JdbcTargets: 
+                  -
+                    ConnectionName: "tickit_mysql"
+                    Path: "tickit/%"
+            DatabaseName: "tickit_demo"
+            SchemaChangePolicy: 
+                UpdateBehavior: "UPDATE_IN_DATABASE"
+                DeleteBehavior: "DEPRECATE_IN_DATABASE"
+            TablePrefix: "source_"
+
+    GlueCrawlerPostgreSQL:
+        Type: "AWS::Glue::Crawler"
+        Properties:
+            Name: "tickit_postgresql"
+            Role: "service-role/AWSGlueServiceRole-demo"
+            Targets: 
+                JdbcTargets: 
+                  -
+                    ConnectionName: "tickit_postgresql"
+                    Path: "tickit/saas/%"
+            DatabaseName: "tickit_demo"
+            SchemaChangePolicy: 
+                UpdateBehavior: "UPDATE_IN_DATABASE"
+                DeleteBehavior: "DEPRECATE_IN_DATABASE"
+            TablePrefix: "source_"
+
+    GlueConnectionMSSQL:
+        Type: "AWS::Glue::Connection"
+        Properties:
+            ConnectionInput: 
+                ConnectionType: "JDBC"
+                PhysicalConnectionRequirements: 
+                    SubnetId: !Ref SubnetConnection
+                    SecurityGroupIdList: 
+                      - !Ref SecurityGroupConnection
+                    AvailabilityZone: !Sub "${AWS::Region}a"
+                ConnectionProperties: 
+                    JDBC_CONNECTION_URL: !Sub "jdbc:sqlserver://your.database.${AWS::Region}.rds.amazonaws.com:1433;databaseName=tickit"
+                    JDBC_ENFORCE_SSL: "false"
+                    PASSWORD: "bar"
+                    USERNAME: "foo"
+                Name: "tickit_mssql"
+            CatalogId: !Ref "AWS::AccountId"
+
+    GlueConnectionMySQL:
+        Type: "AWS::Glue::Connection"
+        Properties:
+            ConnectionInput: 
+                ConnectionType: "JDBC"
+                PhysicalConnectionRequirements: 
+                    SubnetId: !Ref SubnetConnection
+                    SecurityGroupIdList: 
+                      - !Ref SecurityGroupConnection
+                    AvailabilityZone: !Sub "${AWS::Region}a"
+                ConnectionProperties: 
+                    JDBC_CONNECTION_URL: !Sub "jdbc:mysql://your.database.${AWS::Region}.rds.amazonaws.com:3306/tickit"
+                    JDBC_ENFORCE_SSL: "false"
+                    PASSWORD: "bar"
+                    USERNAME: "foo"
+                Name: "tickit_mysql"
+            CatalogId: !Ref "AWS::AccountId"
+
+    GlueConnectionPostgreSQL:
+        Type: "AWS::Glue::Connection"
+        Properties:
+            ConnectionInput: 
+                ConnectionType: "JDBC"
+                PhysicalConnectionRequirements: 
+                    SubnetId: !Ref SubnetConnection
+                    SecurityGroupIdList: 
+                      - !Ref SecurityGroupConnection
+                    AvailabilityZone: !Sub "${AWS::Region}b"
+                ConnectionProperties: 
+                    JDBC_CONNECTION_URL: !Sub "jdbc:postgresql://your.database.${AWS::Region}.rds.amazonaws.com:5432/tickit"
+                    JDBC_ENFORCE_SSL: "false"
+                    PASSWORD: "bar"
+                    USERNAME: "foo"
+                Name: "tickit_postgresql"
+            CatalogId: !Ref "AWS::AccountId"
+
+    GlueJobCategoryRefine:
+        Type: "AWS::Glue::Job"
+        Properties:
+            Name: "tickit_public_category_refine"
+            Description: ""
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/AWSGlueServiceRole-demo"
+            ExecutionProperty: 
+                MaxConcurrentRuns: 1
+            Command: 
+                Name: "glueetl"
+                ScriptLocation: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/scripts/tickit_public_category_refine.py"
+                PythonVersion: "3"
+            DefaultArguments: 
+                --TempDir: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/temporary/"
+                --class: "GlueApp"
+                --enable-continuous-cloudwatch-log: "true"
+                --enable-glue-datacatalog: "true"
+                --enable-metrics: "true"
+                --enable-spark-ui: "true"
+                --job-bookmark-option: "job-bookmark-disable"
+                --job-language: "python"
+                --spark-event-logs-path: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/sparkHistoryLogs/"
+            Connections: 
+                Connections: 
+                  - "tickit_postgresql"
+            MaxRetries: 0
+            AllocatedCapacity: 10
+            Timeout: 2880
+            GlueVersion: "2.0"
+            MaxCapacity: 10
+            NumberOfWorkers: 10
+            WorkerType: "G.1X"
+
+    GlueJobCategoryRaw:
+        Type: "AWS::Glue::Job"
+        Properties:
+            Name: "tickit_public_category_raw"
+            Description: ""
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/AWSGlueServiceRole-demo"
+            ExecutionProperty: 
+                MaxConcurrentRuns: 1
+            Command: 
+                Name: "glueetl"
+                ScriptLocation: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/scripts/tickit_public_category_raw.py"
+                PythonVersion: "3"
+            DefaultArguments: 
+                --TempDir: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/temporary/"
+                --class: "GlueApp"
+                --enable-continuous-cloudwatch-log: "true"
+                --enable-glue-datacatalog: "true"
+                --enable-metrics: "true"
+                --enable-spark-ui: "true"
+                --job-bookmark-option: "job-bookmark-disable"
+                --job-language: "python"
+                --spark-event-logs-path: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/sparkHistoryLogs/"
+            Connections: 
+                Connections: 
+                  - "tickit_postgresql"
+            MaxRetries: 0
+            AllocatedCapacity: 10
+            Timeout: 2880
+            GlueVersion: "2.0"
+            MaxCapacity: 10
+            NumberOfWorkers: 10
+            WorkerType: "G.1X"
+
+    GlueJobDateRefine:
+        Type: "AWS::Glue::Job"
+        Properties:
+            Name: "tickit_public_date_refine"
+            Description: ""
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/AWSGlueServiceRole-demo"
+            ExecutionProperty: 
+                MaxConcurrentRuns: 1
+            Command: 
+                Name: "glueetl"
+                ScriptLocation: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/scripts/tickit_public_date_refine.py"
+                PythonVersion: "3"
+            DefaultArguments: 
+                --TempDir: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/temporary/"
+                --class: "GlueApp"
+                --enable-continuous-cloudwatch-log: "true"
+                --enable-glue-datacatalog: "true"
+                --enable-metrics: "true"
+                --enable-spark-ui: "true"
+                --job-bookmark-option: "job-bookmark-disable"
+                --job-language: "python"
+                --spark-event-logs-path: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/sparkHistoryLogs/"
+            Connections: 
+                Connections: 
+                  - "tickit_mysql"
+            MaxRetries: 0
+            AllocatedCapacity: 10
+            Timeout: 2880
+            GlueVersion: "2.0"
+            MaxCapacity: 10
+            NumberOfWorkers: 10
+            WorkerType: "G.1X"
+
+    GlueJobDateRaw:
+        Type: "AWS::Glue::Job"
+        Properties:
+            Name: "tickit_public_date_raw"
+            Description: ""
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/AWSGlueServiceRole-demo"
+            ExecutionProperty: 
+                MaxConcurrentRuns: 1
+            Command: 
+                Name: "glueetl"
+                ScriptLocation: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/scripts/tickit_public_date_raw.py"
+                PythonVersion: "3"
+            DefaultArguments: 
+                --TempDir: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/temporary/"
+                --class: "GlueApp"
+                --enable-continuous-cloudwatch-log: "true"
+                --enable-glue-datacatalog: "true"
+                --enable-metrics: "true"
+                --enable-spark-ui: "true"
+                --job-bookmark-option: "job-bookmark-disable"
+                --job-language: "python"
+                --spark-event-logs-path: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/sparkHistoryLogs/"
+            Connections: 
+                Connections: 
+                  - "tickit_postgresql"
+            MaxRetries: 0
+            AllocatedCapacity: 10
+            Timeout: 2880
+            GlueVersion: "2.0"
+            MaxCapacity: 10
+            NumberOfWorkers: 10
+            WorkerType: "G.1X"
+
+    GlueJobEventRefine:
+        Type: "AWS::Glue::Job"
+        Properties:
+            Name: "tickit_public_event_refine"
+            Description: ""
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/AWSGlueServiceRole-demo"
+            ExecutionProperty: 
+                MaxConcurrentRuns: 1
+            Command: 
+                Name: "glueetl"
+                ScriptLocation: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/scripts/tickit_public_event_refine.py"
+                PythonVersion: "3"
+            DefaultArguments: 
+                --TempDir: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/temporary/"
+                --class: "GlueApp"
+                --enable-continuous-cloudwatch-log: "true"
+                --enable-glue-datacatalog: "true"
+                --enable-metrics: "true"
+                --enable-spark-ui: "true"
+                --job-bookmark-option: "job-bookmark-disable"
+                --job-language: "python"
+                --spark-event-logs-path: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/sparkHistoryLogs/"
+            Connections: 
+                Connections: 
+                  - "tickit_postgresql"
+            MaxRetries: 0
+            AllocatedCapacity: 10
+            Timeout: 2880
+            GlueVersion: "2.0"
+            MaxCapacity: 10
+            NumberOfWorkers: 10
+            WorkerType: "G.1X"
+
+    GlueJobEventRaw:
+        Type: "AWS::Glue::Job"
+        Properties:
+            Name: "tickit_public_event_raw"
+            Description: ""
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/AWSGlueServiceRole-demo"
+            ExecutionProperty: 
+                MaxConcurrentRuns: 1
+            Command: 
+                Name: "glueetl"
+                ScriptLocation: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/scripts/tickit_public_event_raw.py"
+                PythonVersion: "3"
+            DefaultArguments: 
+                --TempDir: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/temporary/"
+                --class: "GlueApp"
+                --enable-continuous-cloudwatch-log: "true"
+                --enable-glue-datacatalog: "true"
+                --enable-metrics: "true"
+                --enable-spark-ui: "true"
+                --job-bookmark-option: "job-bookmark-disable"
+                --job-language: "python"
+                --spark-event-logs-path: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/sparkHistoryLogs/"
+            Connections: 
+                Connections: 
+                  - "tickit_postgresql"
+            MaxRetries: 0
+            AllocatedCapacity: 10
+            Timeout: 2880
+            GlueVersion: "2.0"
+            MaxCapacity: 10
+            NumberOfWorkers: 10
+            WorkerType: "G.1X"
+
+    GlueJobListingRefine:
+        Type: "AWS::Glue::Job"
+        Properties:
+            Name: "tickit_public_listing_refine"
+            Description: ""
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/AWSGlueServiceRole-demo"
+            ExecutionProperty: 
+                MaxConcurrentRuns: 1
+            Command: 
+                Name: "glueetl"
+                ScriptLocation: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/scripts/tickit_public_listing_refine.py"
+                PythonVersion: "3"
+            DefaultArguments: 
+                --TempDir: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/temporary/"
+                --class: "GlueApp"
+                --enable-continuous-cloudwatch-log: "true"
+                --enable-glue-datacatalog: "true"
+                --enable-metrics: "true"
+                --enable-spark-ui: "true"
+                --job-bookmark-option: "job-bookmark-disable"
+                --job-language: "python"
+                --spark-event-logs-path: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/sparkHistoryLogs/"
+            Connections: 
+                Connections: 
+                  - "tickit_mysql"
+            MaxRetries: 0
+            AllocatedCapacity: 10
+            Timeout: 2880
+            GlueVersion: "2.0"
+            MaxCapacity: 10
+            NumberOfWorkers: 10
+            WorkerType: "G.1X"
+
+    GlueJobListingRaw:
+        Type: "AWS::Glue::Job"
+        Properties:
+            Name: "tickit_public_listing_raw"
+            Description: ""
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/AWSGlueServiceRole-demo"
+            ExecutionProperty: 
+                MaxConcurrentRuns: 1
+            Command: 
+                Name: "glueetl"
+                ScriptLocation: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/scripts/tickit_public_listing_raw.py"
+                PythonVersion: "3"
+            DefaultArguments: 
+                --TempDir: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/temporary/"
+                --class: "GlueApp"
+                --enable-continuous-cloudwatch-log: "true"
+                --enable-glue-datacatalog: "true"
+                --enable-metrics: "true"
+                --enable-spark-ui: "true"
+                --job-bookmark-option: "job-bookmark-disable"
+                --job-language: "python"
+                --spark-event-logs-path: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/sparkHistoryLogs/"
+            MaxRetries: 0
+            AllocatedCapacity: 10
+            Timeout: 2880
+            GlueVersion: "2.0"
+            MaxCapacity: 10
+            NumberOfWorkers: 10
+            WorkerType: "G.1X"
+
+    GlueJobSalesRefine:
+        Type: "AWS::Glue::Job"
+        Properties:
+            Name: "tickit_public_sales_refine"
+            Description: ""
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/AWSGlueServiceRole-demo"
+            ExecutionProperty: 
+                MaxConcurrentRuns: 1
+            Command: 
+                Name: "glueetl"
+                ScriptLocation: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/scripts/Untitled job.py"
+                PythonVersion: "3"
+            DefaultArguments: 
+                --TempDir: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/temporary/"
+                --class: "GlueApp"
+                --enable-continuous-cloudwatch-log: "true"
+                --enable-glue-datacatalog: "true"
+                --enable-metrics: "true"
+                --enable-spark-ui: "true"
+                --job-bookmark-option: "job-bookmark-disable"
+                --job-language: "python"
+                --spark-event-logs-path: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/sparkHistoryLogs/"
+            Connections: 
+                Connections: 
+                  - "tickit_mysql"
+            MaxRetries: 0
+            AllocatedCapacity: 10
+            Timeout: 2880
+            GlueVersion: "2.0"
+            MaxCapacity: 10
+            NumberOfWorkers: 10
+            WorkerType: "G.1X"
+
+    GlueJobSalesRaw:
+        Type: "AWS::Glue::Job"
+        Properties:
+            Name: "tickit_public_sales_raw"
+            Description: ""
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/AWSGlueServiceRole-demo"
+            ExecutionProperty: 
+                MaxConcurrentRuns: 1
+            Command: 
+                Name: "glueetl"
+                ScriptLocation: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/scripts/tickit_public_sales_raw.py"
+                PythonVersion: "3"
+            DefaultArguments: 
+                --TempDir: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/temporary/"
+                --class: "GlueApp"
+                --enable-continuous-cloudwatch-log: "true"
+                --enable-glue-datacatalog: "true"
+                --enable-metrics: "true"
+                --enable-spark-ui: "true"
+                --job-bookmark-option: "job-bookmark-disable"
+                --job-language: "python"
+                --spark-event-logs-path: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/sparkHistoryLogs/"
+            MaxRetries: 0
+            AllocatedCapacity: 10
+            Timeout: 2880
+            GlueVersion: "2.0"
+            MaxCapacity: 10
+            NumberOfWorkers: 10
+            WorkerType: "G.1X"
+
+    GlueJobUsersRefine:
+        Type: "AWS::Glue::Job"
+        Properties:
+            Name: "tickit_public_users_refine"
+            Description: ""
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/AWSGlueServiceRole-demo"
+            ExecutionProperty: 
+                MaxConcurrentRuns: 1
+            Command: 
+                Name: "glueetl"
+                ScriptLocation: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/scripts/tickit_public_users_refine.py"
+                PythonVersion: "3"
+            DefaultArguments: 
+                --TempDir: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/temporary/"
+                --class: "GlueApp"
+                --enable-continuous-cloudwatch-log: "true"
+                --enable-glue-datacatalog: "true"
+                --enable-metrics: "true"
+                --enable-spark-ui: "true"
+                --job-bookmark-option: "job-bookmark-disable"
+                --job-language: "python"
+                --spark-event-logs-path: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/sparkHistoryLogs/"
+            Connections: 
+                Connections: 
+                  - "tickit_mssql"
+            MaxRetries: 0
+            AllocatedCapacity: 10
+            Timeout: 2880
+            GlueVersion: "2.0"
+            MaxCapacity: 10
+            NumberOfWorkers: 10
+            WorkerType: "G.1X"
+
+    GlueJobUsersRaw:
+        Type: "AWS::Glue::Job"
+        Properties:
+            Name: "tickit_public_users_raw"
+            Description: ""
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/AWSGlueServiceRole-demo"
+            ExecutionProperty: 
+                MaxConcurrentRuns: 1
+            Command: 
+                Name: "glueetl"
+                ScriptLocation: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/scripts/tickit_public_users_raw.py"
+                PythonVersion: "3"
+            DefaultArguments: 
+                --TempDir: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/temporary/"
+                --class: "GlueApp"
+                --enable-continuous-cloudwatch-log: "true"
+                --enable-glue-datacatalog: "true"
+                --enable-metrics: "true"
+                --enable-spark-ui: "true"
+                --job-bookmark-option: "job-bookmark-disable"
+                --job-language: "python"
+                --spark-event-logs-path: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/sparkHistoryLogs/"
+            Connections: 
+                Connections: 
+                  - "tickit_postgresql"
+            MaxRetries: 0
+            AllocatedCapacity: 10
+            Timeout: 2880
+            GlueVersion: "2.0"
+            MaxCapacity: 10
+            NumberOfWorkers: 10
+            WorkerType: "G.1X"
+
+    GlueJobVenueRefine:
+        Type: "AWS::Glue::Job"
+        Properties:
+            Name: "tickit_public_venue_refine"
+            Description: ""
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/AWSGlueServiceRole-demo"
+            ExecutionProperty: 
+                MaxConcurrentRuns: 1
+            Command: 
+                Name: "glueetl"
+                ScriptLocation: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/scripts/tickit_public_venue_refine.py"
+                PythonVersion: "3"
+            DefaultArguments: 
+                --TempDir: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/temporary/"
+                --class: "GlueApp"
+                --enable-continuous-cloudwatch-log: "true"
+                --enable-glue-datacatalog: "true"
+                --enable-metrics: "true"
+                --enable-spark-ui: "true"
+                --job-bookmark-option: "job-bookmark-disable"
+                --job-language: "python"
+                --spark-event-logs-path: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/sparkHistoryLogs/"
+            Connections: 
+                Connections: 
+                  - "tickit_postgresql"
+            MaxRetries: 0
+            AllocatedCapacity: 10
+            Timeout: 2880
+            GlueVersion: "2.0"
+            MaxCapacity: 10
+            NumberOfWorkers: 10
+            WorkerType: "G.1X"
+
+    GlueJobVenueRaw:
+        Type: "AWS::Glue::Job"
+        Properties:
+            Name: "tickit_public_venue_raw"
+            Description: ""
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/AWSGlueServiceRole-demo"
+            ExecutionProperty: 
+                MaxConcurrentRuns: 1
+            Command: 
+                Name: "glueetl"
+                ScriptLocation: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/scripts/tickit_public_venue_raw.py"
+                PythonVersion: "3"
+            DefaultArguments: 
+                --TempDir: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/temporary/"
+                --class: "GlueApp"
+                --enable-continuous-cloudwatch-log: "true"
+                --enable-glue-datacatalog: "true"
+                --enable-metrics: "true"
+                --enable-spark-ui: "true"
+                --job-bookmark-option: "job-bookmark-disable"
+                --job-language: "python"
+                --spark-event-logs-path: !Sub "s3://your-aws-glue-assets-bucket-${AWS::AccountId}-${AWS::Region}/sparkHistoryLogs/"
+            Connections: 
+                Connections: 
+                  - "tickit_postgresql"
+            MaxRetries: 0
+            AllocatedCapacity: 10
+            Timeout: 2880
+            GlueVersion: "2.0"
+            MaxCapacity: 10
+            NumberOfWorkers: 10
+            WorkerType: "G.1X"
+
+    S3Bucket:
+        Type: "AWS::S3::Bucket"
+        Properties:
+            BucketName: !Sub "your-data-lake-bucket-${AWS::Region}"
+
