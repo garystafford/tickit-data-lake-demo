@@ -18,12 +18,12 @@ DEFAULT_ARGS = {
 
 with DAG(
         dag_id=DAG_ID,
-        description='Run all data lake demonstration DAGs',
+        description="Run all data lake demonstration DAGs",
         default_args=DEFAULT_ARGS,
         dagrun_timeout=timedelta(minutes=30),
         start_date=days_ago(1),
         schedule_interval=None,
-        tags=['data lake demo']
+        tags=["data lake demo"]
 ) as dag:
     trigger_dag_00 = TriggerDagRunOperator(
         task_id="trigger_dag_00",

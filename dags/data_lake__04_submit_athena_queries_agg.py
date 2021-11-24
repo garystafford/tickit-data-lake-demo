@@ -6,7 +6,7 @@ from airflow.operators.bash import BashOperator
 from airflow.providers.amazon.aws.operators.athena import AWSAthenaOperator
 from airflow.utils.dates import days_ago
 
-DAG_ID = os.path.basename(__file__).replace('.py', '')
+DAG_ID = os.path.basename(__file__).replace(".py", "")
 
 DEFAULT_ARGS = {
     "owner": "garystafford",
@@ -111,36 +111,36 @@ QUERY_SALES_BY_DATE = """
 
 with DAG(
         dag_id=DAG_ID,
-        description='Submit Amazon Athena CTAS queries',
+        description="Submit Amazon Athena CTAS queries",
         default_args=DEFAULT_ARGS,
         dagrun_timeout=timedelta(minutes=15),
         start_date=days_ago(1),
         schedule_interval=None,
-        tags=['data lake demo', 'athena', 'agg', 'gold']
+        tags=["data lake demo", "athena", "agg", "gold"]
 ) as dag:
     athena_ctas_submit_category = AWSAthenaOperator(
-        task_id='athena_ctas_submit_category',
+        task_id="athena_ctas_submit_category",
         query=AGG_TICKIT_SALES_BY_CATEGORY,
-        output_location='s3://{{ var.value.athena_query_results }}/',
-        database='tickit_demo'
+        output_location="s3://{{ var.value.athena_query_results }}/",
+        database="tickit_demo"
     )
 
     athena_ctas_submit_date = AWSAthenaOperator(
-        task_id='athena_ctas_submit_date',
+        task_id="athena_ctas_submit_date",
         query=AGG_TICKIT_SALES_BY_DATE,
-        output_location='s3://{{ var.value.athena_query_results }}/',
-        database='tickit_demo'
+        output_location="s3://{{ var.value.athena_query_results }}/",
+        database="tickit_demo"
     )
 
     athena_query_by_date = AWSAthenaOperator(
-        task_id='athena_query_by_date',
+        task_id="athena_query_by_date",
         query=QUERY_SALES_BY_DATE,
-        output_location='s3://{{ var.value.athena_query_results }}/',
-        database='tickit_demo'
+        output_location="s3://{{ var.value.athena_query_results }}/",
+        database="tickit_demo"
     )
 
     list_glue_tables = BashOperator(
-        task_id='list_glue_tables',
+        task_id="list_glue_tables",
         bash_command="""aws glue get-tables --database-name tickit_demo \
                           --query 'TableList[].Name' --expression "agg_*"  \
                           --output table"""

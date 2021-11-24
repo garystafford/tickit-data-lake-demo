@@ -1,5 +1,4 @@
 {
     "athena_query_results": "<your-athena-query-results-bucket>",
-    "data_lake_bucket": "<your-data-lake-bucket>",
-    "fail_email": "airflow@example.com"
+    "data_lake_bucket": "<your-data-lake-bucket>"
 }
