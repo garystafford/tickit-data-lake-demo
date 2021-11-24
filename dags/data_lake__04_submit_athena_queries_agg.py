@@ -9,11 +9,12 @@ from airflow.utils.dates import days_ago
 DAG_ID = os.path.basename(__file__).replace('.py', '')
 
 DEFAULT_ARGS = {
-    'owner': 'airflow',
-    'depends_on_past': False,
-    'email': ['{{ var.value.fail_email }}'],
-    'email_on_failure': False,
-    'email_on_retry': False
+    "owner": "garystafford",
+    "depends_on_past": False,
+    "retries": 0,
+    "email": ["airflow@example.com"],
+    "email_on_failure": False,
+    "email_on_retry": False,
 }
 
 AGG_TICKIT_SALES_BY_CATEGORY = """
