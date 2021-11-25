@@ -5,7 +5,7 @@ from airflow import DAG
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.utils.dates import days_ago
 
-DAG_ID = os.path.basename(__file__).replace('.py', '')
+DAG_ID = os.path.basename(__file__).replace(".py", "")
 
 DEFAULT_ARGS = {
     "owner": "garystafford",
