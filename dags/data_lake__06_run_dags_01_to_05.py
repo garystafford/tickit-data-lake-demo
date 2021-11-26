@@ -25,33 +25,33 @@ with DAG(
         schedule_interval=None,
         tags=["data lake demo"]
 ) as dag:
-    trigger_dag_00 = TriggerDagRunOperator(
-        task_id="trigger_dag_00",
-        trigger_dag_id="data_lake__00_clean_and_prep_demo",
-        wait_for_completion=True
-    )
-
     trigger_dag_01 = TriggerDagRunOperator(
         task_id="trigger_dag_01",
-        trigger_dag_id="data_lake__01_run_glue_crawlers_source",
+        trigger_dag_id="data_lake__01_clean_and_prep_demo",
         wait_for_completion=True
     )
 
     trigger_dag_02 = TriggerDagRunOperator(
         task_id="trigger_dag_02",
-        trigger_dag_id="data_lake__02_run_glue_jobs_raw",
+        trigger_dag_id="data_lake__02_run_glue_crawlers_source",
         wait_for_completion=True
     )
 
     trigger_dag_03 = TriggerDagRunOperator(
         task_id="trigger_dag_03",
-        trigger_dag_id="data_lake__03_run_glue_jobs_refined",
-        wait_for_completion=True
-    )
-    trigger_dag_04 = TriggerDagRunOperator(
-        task_id="trigger_dag_04",
-        trigger_dag_id="data_lake__04_submit_athena_queries_agg",
+        trigger_dag_id="data_lake__03_run_glue_jobs_raw",
         wait_for_completion=True
     )
 
-trigger_dag_00 >> trigger_dag_01 >> trigger_dag_02 >> trigger_dag_03 >> trigger_dag_04
+    trigger_dag_04 = TriggerDagRunOperator(
+        task_id="trigger_dag_04",
+        trigger_dag_id="data_lake__04_run_glue_jobs_refined",
+        wait_for_completion=True
+    )
+    trigger_dag_05 = TriggerDagRunOperator(
+        task_id="trigger_dag_04",
+        trigger_dag_id="data_lake__05_submit_athena_queries_agg",
+        wait_for_completion=True
+    )
+
+trigger_dag_01 >> trigger_dag_02 >> trigger_dag_03 >> trigger_dag_04 >> trigger_dag_05
