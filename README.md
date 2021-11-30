@@ -5,6 +5,14 @@ post, [Building a Simple Data Lake on AWS](https://garystafford.medium.com/build
 . Build a simple data lake on AWS using a combination of services, including Amazon MWAA, AWS Glue Data Catalog, AWS
 Glue Crawlers, AWS Glue Jobs, AWS Glue Studio, Amazon Athena, and Amazon S3.
 
+Source code for video demonstration detailed in the
+post, [Building a Data Lake with Apache Airflow](https://garystafford.medium.com/building-a-data-lake-with-apache-airflow-b48bd953c2b)
+. Programmatically build a simple Data Lake on AWS using Amazon Managed Workflows for Apache Airflow, AWS Glue, and Amazon Athena.
+
+Source code for video demonstration detailed in the
+post, [AWS Lakehouse Automation](https://medium.com/@garystafford/aws-lakehouse-automation)
+. Programmatically load data into and upload data from Amazon Redshift using Apache Airflow.
+
 ## Architecture
 
 ![Architecture](./diagram/diagram.png)

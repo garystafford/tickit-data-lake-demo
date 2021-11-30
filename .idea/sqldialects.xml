@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/create_table_category_staging.sql" dialect="Redshift" />
+    <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/create_table_date_staging.sql" dialect="Redshift" />
+    <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/create_table_event_staging.sql" dialect="Redshift" />
+    <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/create_table_listing_staging.sql" dialect="Redshift" />
+    <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/create_table_sales_staging.sql" dialect="Redshift" />
+    <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/create_table_users_staging.sql" dialect="Redshift" />
+    <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/create_table_venue_staging.sql" dialect="Redshift" />
+    <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/create_tables.sql" dialect="Redshift" />
+    <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/get_table_counts.sql" dialect="Redshift" />
+    <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/merge_category.sql" dialect="Redshift" />
+    <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/merge_date.sql" dialect="Redshift" />
+    <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/merge_event.sql" dialect="Redshift" />
+    <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/merge_listing.sql" dialect="Redshift" />
+    <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/merge_sales.sql" dialect="Redshift" />
+    <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/merge_users.sql" dialect="Redshift" />
+    <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/merge_venue.sql" dialect="Redshift" />
+    <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/unload_sales_data.sql" dialect="Redshift" />
+  </component>
+</project>
