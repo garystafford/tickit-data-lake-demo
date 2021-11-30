@@ -24,7 +24,7 @@ DEFAULT_ARGS = {
 }
 
 
-def sns_failure_notification(context):
+def _sns_failure_notification(context):
     dag_run = context.get("dag_run")
     task_instances = dag_run.get_task_instances()
 
@@ -39,7 +39,7 @@ def sns_failure_notification(context):
     return sns_publish.execute(context=context)
 
 
-def sns_success_notification(context):
+def _sns_success_notification(context):
     dag_run = context.get("dag_run")
     task_instances = dag_run.get_task_instances()
 
@@ -54,7 +54,7 @@ def sns_success_notification(context):
     return sns_publish.execute(context=context)
 
 
-def slack_failure_notification(context):
+def _slack_failure_notification(context):
     slack_msg = f"""
             :red_circle: DAG Failed. 
             *Task*: {context.get('task_instance').task_id}  
@@ -70,7 +70,7 @@ def slack_failure_notification(context):
     return failed_alert.execute(context=context)
 
 
-def slack_success_notification(context):
+def _slack_success_notification(context):
     slack_msg = f"""
             :white_check_mark: DAG Succeeded. 
             *Task*: {context.get('task_instance').task_id}  
@@ -93,8 +93,8 @@ with DAG(
         dagrun_timeout=timedelta(minutes=45),
         start_date=days_ago(1),
         schedule_interval=None,
-        on_failure_callback=slack_failure_notification,
-        on_success_callback=slack_success_notification,
+        on_failure_callback=_slack_failure_notification,
+        on_success_callback=_slack_success_notification,
         tags=["redshift demo"],
 ) as dag:
     begin = DummyOperator(
