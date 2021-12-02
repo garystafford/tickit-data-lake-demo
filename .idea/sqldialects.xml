@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/dags/data_lake_demo/sql/query_sales_by_date.sql" dialect="Redshift" />
     <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/create_table_category_staging.sql" dialect="Redshift" />
     <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/create_table_date_staging.sql" dialect="Redshift" />
     <file url="file://$PROJECT_DIR$/dags/redshift_demo/sql/create_table_event_staging.sql" dialect="Redshift" />

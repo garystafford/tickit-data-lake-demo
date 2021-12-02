@@ -2,6 +2,8 @@ import os
 from datetime import timedelta
 
 from airflow import DAG
+from airflow.models.baseoperator import chain
+from airflow.operators.dummy import DummyOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.utils.dates import days_ago
 
@@ -25,6 +27,14 @@ with DAG(
         schedule_interval=None,
         tags=["data lake demo"]
 ) as dag:
+    begin = DummyOperator(
+        task_id="begin"
+    )
+
+    end = DummyOperator(
+        task_id="end"
+    )
+
     trigger_dag_01 = TriggerDagRunOperator(
         task_id="trigger_dag_01",
         trigger_dag_id="data_lake__01_clean_and_prep_demo",
@@ -49,9 +59,17 @@ with DAG(
         wait_for_completion=True
     )
     trigger_dag_05 = TriggerDagRunOperator(
-        task_id="trigger_dag_04",
+        task_id="trigger_dag_05",
         trigger_dag_id="data_lake__05_submit_athena_queries_agg",
         wait_for_completion=True
     )
 
-trigger_dag_01 >> trigger_dag_02 >> trigger_dag_03 >> trigger_dag_04 >> trigger_dag_05
+chain(
+    begin,
+    trigger_dag_01,
+    trigger_dag_02,
+    trigger_dag_03,
+    trigger_dag_04,
+    trigger_dag_05,
+    end
+)

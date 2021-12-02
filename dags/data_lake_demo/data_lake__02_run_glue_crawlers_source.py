@@ -2,7 +2,9 @@ import os
 from datetime import timedelta
 
 from airflow import DAG
+from airflow.models.baseoperator import chain
 from airflow.operators.bash import BashOperator
+from airflow.operators.dummy import DummyOperator
 from airflow.providers.amazon.aws.operators.glue_crawler import AwsGlueCrawlerOperator
 from airflow.utils.dates import days_ago
 
@@ -21,13 +23,21 @@ DEFAULT_ARGS = {
 
 with DAG(
         dag_id=DAG_ID,
-        description="Run AWS Glue Crawlers",
+        description="Run AWS Glue Crawlers to catalog data from RDS datasources",
         default_args=DEFAULT_ARGS,
         dagrun_timeout=timedelta(minutes=15),
         start_date=days_ago(1),
         schedule_interval=None,
-        tags=["data lake demo", "glue crawler", "source"]
+        tags=["data lake demo", "source"]
 ) as dag:
+    begin = DummyOperator(
+        task_id="begin"
+    )
+
+    end = DummyOperator(
+        task_id="end"
+    )
+
     list_glue_tables = BashOperator(
         task_id="list_glue_tables",
         bash_command="""aws glue get-tables --database-name tickit_demo \
@@ -36,9 +46,14 @@ with DAG(
     )
 
     for crawler in CRAWLERS:
-        crawler_run = AwsGlueCrawlerOperator(
-            task_id=f"{crawler}_crawler_run",
+        crawlers_run = AwsGlueCrawlerOperator(
+            task_id=f"run_{crawler}_crawler",
             config={"Name": crawler}
         )
 
-crawler_run >> list_glue_tables
+        chain(
+            begin,
+            crawlers_run,
+            list_glue_tables,
+            end
+        )

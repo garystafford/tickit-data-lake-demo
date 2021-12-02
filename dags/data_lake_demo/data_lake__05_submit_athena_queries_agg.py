@@ -2,11 +2,17 @@ import os
 from datetime import timedelta
 
 from airflow import DAG
+from airflow.models import Variable
+from airflow.models.baseoperator import chain
 from airflow.operators.bash import BashOperator
+from airflow.operators.dummy import DummyOperator
 from airflow.providers.amazon.aws.operators.athena import AWSAthenaOperator
 from airflow.utils.dates import days_ago
 
 DAG_ID = os.path.basename(__file__).replace(".py", "")
+
+S3_BUCKET = Variable.get("data_lake_bucket")
+ATHENA_RESULTS = Variable.get("athena_query_results")
 
 DEFAULT_ARGS = {
     "owner": "garystafford",
@@ -15,14 +21,16 @@ DEFAULT_ARGS = {
     "email": ["airflow@example.com"],
     "email_on_failure": False,
     "email_on_retry": False,
+    "output_location": f"s3://{ATHENA_RESULTS}/",
+    "database": "tickit_demo"
 }
 
-AGG_TICKIT_SALES_BY_CATEGORY = """
+AGG_TICKIT_SALES_BY_CATEGORY = f"""
     CREATE TABLE IF NOT EXISTS agg_tickit_sales_by_category
     WITH (
         format = 'Parquet',
         write_compression = 'SNAPPY',
-        external_location = 's3://{{ var.value.data_lake_bucket }}/tickit/gold/tickit_sales_by_category/',
+        external_location = 's3://{S3_BUCKET}/tickit/gold/tickit_sales_by_category/',
         partitioned_by = ARRAY [ 'catgroup',
         'catname' ],
         bucketed_by = ARRAY [ 'bucket_catname' ],
@@ -56,12 +64,12 @@ AGG_TICKIT_SALES_BY_CATEGORY = """
         LEFT JOIN cat AS c ON c.eventid = s.eventid;
 """
 
-AGG_TICKIT_SALES_BY_DATE = """
+AGG_TICKIT_SALES_BY_DATE = f"""
     CREATE TABLE IF NOT EXISTS agg_tickit_sales_by_date
     WITH (
         format = 'Parquet',
         write_compression = 'SNAPPY',
-        external_location = 's3://{{ var.value.data_lake_bucket }}/tickit/gold/tickit_sales_by_date/',
+        external_location = 's3://{S3_BUCKET}/tickit/gold/tickit_sales_by_date/',
         partitioned_by = ARRAY [ 'year', 'month'],
         bucketed_by = ARRAY [ 'bucket_month' ],
         bucket_count = 1
@@ -96,19 +104,6 @@ AGG_TICKIT_SALES_BY_DATE = """
         LEFT JOIN cat AS c ON c.eventid = s.eventid;
 """
 
-QUERY_SALES_BY_DATE = """
-    SELECT year(caldate) AS sales_year,
-        month(caldate) AS sales_month,
-        round(sum(sale_amount), 2) AS sum_sales,
-        round(sum(commission), 2) AS sum_commission,
-        count(*) AS order_volume
-    FROM agg_tickit_sales_by_category
-    GROUP BY year(caldate),
-        month(caldate)
-    ORDER BY year(caldate),
-        month(caldate);
-"""
-
 with DAG(
         dag_id=DAG_ID,
         description="Submit Amazon Athena CTAS queries",
@@ -116,27 +111,33 @@ with DAG(
         dagrun_timeout=timedelta(minutes=15),
         start_date=days_ago(1),
         schedule_interval=None,
-        tags=["data lake demo", "athena", "agg", "gold"]
+        tags=["data lake demo", "aggregated", "gold"]
 ) as dag:
+    begin = DummyOperator(
+        task_id="begin"
+    )
+
+    begin_checks = DummyOperator(
+        task_id="begin_checks"
+    )
+
+    end = DummyOperator(
+        task_id="end"
+    )
+
     athena_ctas_submit_category = AWSAthenaOperator(
         task_id="athena_ctas_submit_category",
-        query=AGG_TICKIT_SALES_BY_CATEGORY,
-        output_location="s3://{{ var.value.athena_query_results }}/",
-        database="tickit_demo"
+        query=AGG_TICKIT_SALES_BY_CATEGORY
     )
 
     athena_ctas_submit_date = AWSAthenaOperator(
         task_id="athena_ctas_submit_date",
-        query=AGG_TICKIT_SALES_BY_DATE,
-        output_location="s3://{{ var.value.athena_query_results }}/",
-        database="tickit_demo"
+        query=AGG_TICKIT_SALES_BY_DATE
     )
 
     athena_query_by_date = AWSAthenaOperator(
         task_id="athena_query_by_date",
-        query=QUERY_SALES_BY_DATE,
-        output_location="s3://{{ var.value.athena_query_results }}/",
-        database="tickit_demo"
+        query="sql/query_sales_by_date.sql"
     )
 
     list_glue_tables = BashOperator(
@@ -146,4 +147,10 @@ with DAG(
                           --output table"""
     )
 
-[athena_ctas_submit_category, athena_ctas_submit_date] >> athena_query_by_date >> list_glue_tables
+chain(
+    begin,
+    (athena_ctas_submit_category, athena_ctas_submit_date),
+    begin_checks,
+    (athena_query_by_date, list_glue_tables),
+    end
+)

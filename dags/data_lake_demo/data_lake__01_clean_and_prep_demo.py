@@ -2,10 +2,15 @@ import os
 from datetime import timedelta
 
 from airflow import DAG
+from airflow.models import Variable
+from airflow.models.baseoperator import chain
 from airflow.operators.bash import BashOperator
+from airflow.operators.dummy import DummyOperator
 from airflow.utils.dates import days_ago
 
 DAG_ID = os.path.basename(__file__).replace(".py", "")
+
+S3_BUCKET = Variable.get("data_lake_bucket")
 
 DEFAULT_ARGS = {
     "owner": "garystafford",
@@ -18,21 +23,29 @@ DEFAULT_ARGS = {
 
 with DAG(
         dag_id=DAG_ID,
-        description="Prepare for data lake demonstration",
+        description="Prepare for data lake demonstration using simple AWS CLI commands vs. AWS Operators",
         default_args=DEFAULT_ARGS,
-        dagrun_timeout=timedelta(minutes=5),
+        dagrun_timeout=timedelta(minutes=10),
         start_date=days_ago(1),
         schedule_interval=None,
         tags=["data lake demo"]
 ) as dag:
+    begin = DummyOperator(
+        task_id="begin"
+    )
+
+    end = DummyOperator(
+        task_id="end"
+    )
+
     delete_demo_s3_objects = BashOperator(
         task_id="delete_demo_s3_objects",
-        bash_command='aws s3 rm "s3://{{ var.value.data_lake_bucket }}/tickit/" --recursive'
+        bash_command=f'aws s3 rm "s3://{S3_BUCKET}/tickit/" --recursive'
     )
 
     list_demo_s3_objects = BashOperator(
         task_id="list_demo_s3_objects",
-        bash_command='aws s3api list-objects-v2 --bucket {{ var.value.data_lake_bucket }} --prefix tickit/'
+        bash_command=f'aws s3api list-objects-v2 --bucket {S3_BUCKET} --prefix tickit/'
     )
 
     delete_demo_catalog = BashOperator(
@@ -46,5 +59,9 @@ with DAG(
             '{"Name": "tickit_demo", "Description": "Track sales activity for the fictional TICKIT web site"}'"""
     )
 
-delete_demo_s3_objects >> list_demo_s3_objects
-delete_demo_catalog >> create_demo_catalog
+chain(
+    begin,
+    (delete_demo_s3_objects, delete_demo_catalog),
+    (list_demo_s3_objects, create_demo_catalog),
+    end
+)
