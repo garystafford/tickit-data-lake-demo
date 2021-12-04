@@ -24,7 +24,7 @@ DEFAULT_ARGS = {
 }
 
 
-def _sns_failure_notification(context):
+def _sns_success_notification(context):
     dag_run = context.get("dag_run")
     task_instances = dag_run.get_task_instances()
 
@@ -39,7 +39,7 @@ def _sns_failure_notification(context):
     return sns_publish.execute(context=context)
 
 
-def _sns_success_notification(context):
+def _sns_failure_notification(context):
     dag_run = context.get("dag_run")
     task_instances = dag_run.get_task_instances()
 
