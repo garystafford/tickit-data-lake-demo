@@ -69,4 +69,7 @@ Catalogs the unloaded data in Amazon S3 using AWS Glue, then performs a test que
 
 redshift_demo__06_run_dags_01_to_05.py
 Sequentially triggers DAGS #1 through #5
+
+redshift_demo__06B_run_dags_01_to_05.py
+Alternate version of DAG 06. Uses external module for notifications.
 ```
