@@ -48,7 +48,7 @@ def _sns_failure_notification(context):
         aws_conn_id="aws_default",
         target_arn=SNS_TOPIC,
         message=f"These task instances failed: {task_instances}.",
-        subject=f"{DAG_ID} Completed Successfully"
+        subject=f"{DAG_ID} Failed!"
     )
 
     return sns_publish.execute(context=context)
