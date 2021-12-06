@@ -39,7 +39,7 @@ with DAG(
 
     unload_sales_data = PostgresOperator(
         task_id="unload_sales_data",
-        sql="sql/unload_sales_data.sql",
+        sql="sql_redshift/unload_sales_data.sql",
         params={
             "s3_unload_path": S3_UNLOAD_PATH,
             "redshift_unload_iam_role": REDSHIFT_UNLOAD_IAM_ROLE,

@@ -1,4 +1,4 @@
-# Notification logic stored in external module
+# Notification logic for DAGs
 
 import os
 
@@ -10,39 +10,35 @@ DAG_ID = os.path.basename(__file__).replace(".py", "")
 SNS_TOPIC = Variable.get("sns_topic")
 
 
-def _sns_success_notification(context):
-    dag_run = context.get("dag_run")
-    dag_name = context.get("dag")
-    task_instances = dag_run.get_task_instances()
+def sns_success_notification(context):
+    task_instances = context.get("dag_run").get_task_instances()
 
     sns_publish = SnsPublishOperator(
         task_id="publish_sns_message",
         aws_conn_id="aws_default",
         target_arn=SNS_TOPIC,
         message=f"These task instances succeeded: {task_instances}.",
-        subject=f"{dag_name} Completed Successfully",
+        subject=f"{context.get('dag')} Completed Successfully",
     )
 
     return sns_publish.execute(context=context)
 
 
-def _sns_failure_notification(context):
-    dag_run = context.get("dag_run")
-    dag_name = context.get("dag")
-    task_instances = dag_run.get_task_instances()
+def sns_failure_notification(context):
+    task_instances = context.get("dag_run").get_task_instances()
 
     sns_publish = SnsPublishOperator(
         task_id="publish_sns_message",
         aws_conn_id="aws_default",
         target_arn=SNS_TOPIC,
         message=f"These task instances failed: {task_instances}.",
-        subject=f"{dag_name} Failed!",
+        subject=f"{context.get('dag')} Failed!",
     )
 
     return sns_publish.execute(context=context)
 
 
-def _slack_failure_notification(context):
+def slack_failure_notification(context):
     slack_msg = f"""
             :red_circle: DAG Failed.
             *Task*: {context.get('task_instance').task_id}
@@ -57,7 +53,7 @@ def _slack_failure_notification(context):
     return failed_alert.execute(context=context)
 
 
-def _slack_success_notification(context):
+def slack_success_notification(context):
     slack_msg = f"""
             :large_green_circle: DAG Succeeded.
             *Task*: {context.get('task_instance').task_id}

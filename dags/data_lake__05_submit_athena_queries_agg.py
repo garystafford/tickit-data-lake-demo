@@ -128,7 +128,7 @@ with DAG(
     )
 
     athena_query_by_date = AWSAthenaOperator(
-        task_id="athena_query_by_date", query="sql/query_sales_by_date.sql"
+        task_id="athena_query_by_date", query="sql_data_lake/query_sales_by_date.sql"
     )
 
     list_glue_tables = BashOperator(

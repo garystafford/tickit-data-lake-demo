@@ -46,4 +46,9 @@ with DAG(
             task_id=f"run_{crawler}_crawler", config={"Name": crawler}
         )
 
-        chain(begin, crawlers_run, list_glue_tables, end)
+        chain(
+            begin,
+            crawlers_run,
+            list_glue_tables,
+            end,
+        )

@@ -10,7 +10,7 @@ from airflow.operators.dummy import DummyOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.utils.dates import days_ago
 
-from notifications import _sns_success_notification, _sns_failure_notification
+from utilities.notifications import sns_success_notification, sns_failure_notification
 
 DAG_ID = os.path.basename(__file__).replace(".py", "")
 
@@ -30,8 +30,8 @@ with DAG(
     dagrun_timeout=timedelta(minutes=45),
     start_date=days_ago(1),
     schedule_interval=None,
-    on_failure_callback=_sns_failure_notification,
-    on_success_callback=_sns_success_notification,
+    on_failure_callback=sns_failure_notification,
+    on_success_callback=sns_success_notification,
     tags=["redshift demo"],
 ) as dag:
     begin = DummyOperator(task_id="begin")

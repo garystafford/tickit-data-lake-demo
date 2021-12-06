@@ -1,7 +1,0 @@
-{
-    "athena_query_results": "<your-athena-query-results-bucket>",
-    "data_lake_bucket": "<your-data-lake-bucket>",
-    "glue_crawler_iam_role": "<your-glue-service-role>",
-    "redshift_unload_iam_role": "<your-redshift-role-arn>",
-    "sns_topic": "<your-sns-topic-arn>"
-}

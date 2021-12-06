@@ -7,6 +7,11 @@ from airflow.operators.dummy import DummyOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.utils.dates import days_ago
 
+from utilities.notifications import (
+    slack_success_notification,
+    slack_failure_notification,
+)
+
 DAG_ID = os.path.basename(__file__).replace(".py", "")
 
 DEFAULT_ARGS = {
@@ -20,11 +25,13 @@ DEFAULT_ARGS = {
 
 with DAG(
     dag_id=DAG_ID,
-    description="Run all data lake demonstration DAGs",
+    description="Run all Data Lake Demonstration DAGs",
     default_args=DEFAULT_ARGS,
     dagrun_timeout=timedelta(minutes=30),
     start_date=days_ago(1),
     schedule_interval=None,
+    on_failure_callback=slack_failure_notification,
+    on_success_callback=slack_success_notification,
     tags=["data lake demo"],
 ) as dag:
     begin = DummyOperator(task_id="begin")
