@@ -24,35 +24,31 @@ DEFAULT_ARGS = {
     "email": ["airflow@example.com"],
     "email_on_failure": False,
     "email_on_retry": False,
-    "postgres_conn_id": "amazon_redshift_dev"
+    "postgres_conn_id": "amazon_redshift_dev",
 }
 
 with DAG(
-        dag_id=DAG_ID,
-        description="Catalog unloaded data with Glue and query with Athena",
-        default_args=DEFAULT_ARGS,
-        dagrun_timeout=timedelta(minutes=15),
-        start_date=days_ago(1),
-        schedule_interval=None,
-        tags=["redshift demo"]
+    dag_id=DAG_ID,
+    description="Catalog unloaded data with Glue and query with Athena",
+    default_args=DEFAULT_ARGS,
+    dagrun_timeout=timedelta(minutes=15),
+    start_date=days_ago(1),
+    schedule_interval=None,
+    tags=["redshift demo"],
 ) as dag:
-    begin = DummyOperator(
-        task_id="begin"
-    )
+    begin = DummyOperator(task_id="begin")
 
-    end = DummyOperator(
-        task_id="end"
-    )
+    end = DummyOperator(task_id="end")
 
     delete_glue_catalog = BashOperator(
         task_id="delete_demo_catalog",
-        bash_command=f'aws glue delete-database --name {GLUE_DATABASE} || echo "Database tickit_redshift_demo not found."'
+        bash_command=f'aws glue delete-database --name {GLUE_DATABASE} || echo "Database tickit_redshift_demo not found."',
     )
 
     create_glue_catalog = BashOperator(
         task_id="create_demo_catalog",
         bash_command="""aws glue create-database --database-input \
-            '{"Name": "tickit_redshift_demo", "Description": "TICKIT sales data unloaded from Redshift"}'"""
+            '{"Name": "tickit_redshift_demo", "Description": "TICKIT sales data unloaded from Redshift"}'""",
     )
 
     crawl_unloaded_data = AwsGlueCrawlerOperator(
@@ -62,32 +58,26 @@ with DAG(
             "Role": GLUE_CRAWLER_IAM_ROLE,
             "DatabaseName": GLUE_DATABASE,
             "Description": "Crawl TICKIT sales data unloaded from Redshift",
-            "Targets": {
-                "S3Targets": [
-                    {
-                        "Path": S3_UNLOAD_PATH
-                    }
-                ]
-            }
-        }
+            "Targets": {"S3Targets": [{"Path": S3_UNLOAD_PATH}]},
+        },
     )
 
     list_glue_tables = BashOperator(
         task_id="list_glue_tables",
         bash_command=f"""aws glue get-tables --database-name {GLUE_DATABASE} \
                           --query 'TableList[].Name' \
-                          --output table"""
+                          --output table""",
     )
 
     athena_query_glue = AWSAthenaOperator(
         task_id="athena_query_glue",
-        query=f"""SELECT *
+        query="""SELECT *
             FROM tickit_redshift_demo.sales
             WHERE catgroup = 'Shows' AND catname = 'Opera'
             ORDER BY saletime
             LIMIT 10;""",
         output_location="s3://{{ var.value.athena_query_results }}/",
-        database=GLUE_DATABASE
+        database=GLUE_DATABASE,
     )
 
     chain(
@@ -97,5 +87,5 @@ with DAG(
         crawl_unloaded_data,
         list_glue_tables,
         athena_query_glue,
-        end
+        end,
     )

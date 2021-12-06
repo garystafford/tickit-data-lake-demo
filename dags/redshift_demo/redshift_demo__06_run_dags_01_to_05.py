@@ -33,7 +33,7 @@ def _sns_success_notification(context):
         aws_conn_id="aws_default",
         target_arn=SNS_TOPIC,
         message=f"These task instances succeeded: {task_instances}.",
-        subject=f"{DAG_ID} Completed Successfully"
+        subject=f"{DAG_ID} Completed Successfully",
     )
 
     return sns_publish.execute(context=context)
@@ -48,7 +48,7 @@ def _sns_failure_notification(context):
         aws_conn_id="aws_default",
         target_arn=SNS_TOPIC,
         message=f"These task instances failed: {task_instances}.",
-        subject=f"{DAG_ID} Failed!"
+        subject=f"{DAG_ID} Failed!",
     )
 
     return sns_publish.execute(context=context)
@@ -56,82 +56,76 @@ def _sns_failure_notification(context):
 
 def _slack_failure_notification(context):
     slack_msg = f"""
-            :red_circle: DAG Failed. 
-            *Task*: {context.get('task_instance').task_id}  
-            *Dag*: {context.get('task_instance').dag_id} 
-            *Execution Time*: {context.get('execution_date')}  
-            *Log Url*: {context.get('task_instance').log_url} 
+            :red_circle: DAG Failed.
+            *Task*: {context.get('task_instance').task_id}
+            *Dag*: {context.get('task_instance').dag_id}
+            *Execution Time*: {context.get('execution_date')}
+            *Log Url*: {context.get('task_instance').log_url}
             """
     failed_alert = SlackWebhookOperator(
-        task_id="slack_notification",
-        http_conn_id="slack_webhook",
-        message=slack_msg)
+        task_id="slack_notification", http_conn_id="slack_webhook", message=slack_msg
+    )
 
     return failed_alert.execute(context=context)
 
 
 def _slack_success_notification(context):
     slack_msg = f"""
-            :white_check_mark: DAG Succeeded. 
-            *Task*: {context.get('task_instance').task_id}  
-            *Dag*: {context.get('task_instance').dag_id} 
-            *Execution Time*: {context.get('execution_date')}  
-            *Log Url*: {context.get('task_instance').log_url} 
+            :large_green_circle: DAG Succeeded.
+            *Task*: {context.get('task_instance').task_id}
+            *Dag*: {context.get('task_instance').dag_id}
+            *Execution Time*: {context.get('execution_date')}
+            *Log Url*: {context.get('task_instance').log_url}
             """
     success_alert = SlackWebhookOperator(
-        task_id="slack_notification",
-        http_conn_id="slack_webhook",
-        message=slack_msg)
+        task_id="slack_notification", http_conn_id="slack_webhook", message=slack_msg
+    )
 
     return success_alert.execute(context=context)
 
 
 with DAG(
-        dag_id=DAG_ID,
-        description="Run all Redshift demonstration DAGs",
-        default_args=DEFAULT_ARGS,
-        dagrun_timeout=timedelta(minutes=45),
-        start_date=days_ago(1),
-        schedule_interval=None,
-        on_failure_callback=_slack_failure_notification,
-        on_success_callback=_slack_success_notification,
-        tags=["redshift demo"],
+    dag_id=DAG_ID,
+    description="Run all Redshift demonstration DAGs",
+    default_args=DEFAULT_ARGS,
+    dagrun_timeout=timedelta(minutes=45),
+    start_date=days_ago(1),
+    schedule_interval=None,
+    on_failure_callback=_slack_failure_notification,
+    on_success_callback=_slack_success_notification,
+    tags=["redshift demo"],
 ) as dag:
-    begin = DummyOperator(
-        task_id="begin"
-    )
+    begin = DummyOperator(task_id="begin")
 
-    end = DummyOperator(
-        task_id="end"
-    )
+    end = DummyOperator(task_id="end")
 
     trigger_dag_01 = TriggerDagRunOperator(
         task_id="trigger_dag_01",
         trigger_dag_id="redshift_demo__01_create_tables",
-        wait_for_completion=True
+        wait_for_completion=True,
     )
 
     trigger_dag_02 = TriggerDagRunOperator(
         task_id="trigger_dag_02",
         trigger_dag_id="redshift_demo__02_initial_load",
-        wait_for_completion=True
+        wait_for_completion=True,
     )
 
     trigger_dag_03 = TriggerDagRunOperator(
         task_id="trigger_dag_03",
         trigger_dag_id="redshift_demo__03_incremental_load",
-        wait_for_completion=True
+        wait_for_completion=True,
     )
 
     trigger_dag_04 = TriggerDagRunOperator(
         task_id="trigger_dag_04",
         trigger_dag_id="redshift_demo__04_unload_data",
-        wait_for_completion=True
+        wait_for_completion=True,
     )
     trigger_dag_05 = TriggerDagRunOperator(
         task_id="trigger_dag_05",
         trigger_dag_id="redshift_demo__05_catalog_and_query",
-        wait_for_completion=True
+        wait_for_completion=True,
     )
 
     chain(
@@ -141,5 +135,5 @@ with DAG(
         trigger_dag_03,
         trigger_dag_04,
         trigger_dag_05,
-        end
+        end,
     )

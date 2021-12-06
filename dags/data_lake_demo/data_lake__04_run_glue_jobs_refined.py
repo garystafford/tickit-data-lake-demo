@@ -22,38 +22,29 @@ DEFAULT_ARGS = {
 }
 
 with DAG(
-        dag_id=DAG_ID,
-        description="Run AWS Glue ETL Jobs: raw data to refined (silver) data",
-        default_args=DEFAULT_ARGS,
-        dagrun_timeout=timedelta(minutes=15),
-        start_date=days_ago(1),
-        schedule_interval=None,
-        tags=["data lake demo", "refined", "silver"]
+    dag_id=DAG_ID,
+    description="Run AWS Glue ETL Jobs: raw data to refined (silver) data",
+    default_args=DEFAULT_ARGS,
+    dagrun_timeout=timedelta(minutes=15),
+    start_date=days_ago(1),
+    schedule_interval=None,
+    tags=["data lake demo", "refined", "silver"],
 ) as dag:
-    begin = DummyOperator(
-        task_id="begin"
-    )
+    begin = DummyOperator(task_id="begin")
 
-    end = DummyOperator(
-        task_id="end"
-    )
+    end = DummyOperator(task_id="end")
 
     list_glue_tables = BashOperator(
         task_id="list_glue_tables",
         bash_command="""aws glue get-tables --database-name tickit_demo \
                           --query 'TableList[].Name' --expression "refined_*"  \
-                          --output table"""
+                          --output table""",
     )
 
     for table in TABLES:
         start_jobs_refined = AwsGlueJobOperator(
             task_id=f"start_job_{table}_refined",
-            job_name=f"tickit_public_{table}_refine"
+            job_name=f"tickit_public_{table}_refine",
         )
 
-        chain(
-            begin,
-            start_jobs_refined,
-            list_glue_tables,
-            end
-        )
+        chain(begin, start_jobs_refined, list_glue_tables, end)

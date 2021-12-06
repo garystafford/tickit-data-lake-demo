@@ -22,38 +22,28 @@ DEFAULT_ARGS = {
 }
 
 with DAG(
-        dag_id=DAG_ID,
-        description="Run AWS Glue Crawlers to catalog data from RDS datasources",
-        default_args=DEFAULT_ARGS,
-        dagrun_timeout=timedelta(minutes=15),
-        start_date=days_ago(1),
-        schedule_interval=None,
-        tags=["data lake demo", "source"]
+    dag_id=DAG_ID,
+    description="Run AWS Glue Crawlers to catalog data from RDS datasources",
+    default_args=DEFAULT_ARGS,
+    dagrun_timeout=timedelta(minutes=15),
+    start_date=days_ago(1),
+    schedule_interval=None,
+    tags=["data lake demo", "source"],
 ) as dag:
-    begin = DummyOperator(
-        task_id="begin"
-    )
+    begin = DummyOperator(task_id="begin")
 
-    end = DummyOperator(
-        task_id="end"
-    )
+    end = DummyOperator(task_id="end")
 
     list_glue_tables = BashOperator(
         task_id="list_glue_tables",
         bash_command="""aws glue get-tables --database-name tickit_demo \
                           --query 'TableList[].Name' --expression "source_*"  \
-                          --output table"""
+                          --output table""",
     )
 
     for crawler in CRAWLERS:
         crawlers_run = AwsGlueCrawlerOperator(
-            task_id=f"run_{crawler}_crawler",
-            config={"Name": crawler}
+            task_id=f"run_{crawler}_crawler", config={"Name": crawler}
         )
 
-        chain(
-            begin,
-            crawlers_run,
-            list_glue_tables,
-            end
-        )
+        chain(begin, crawlers_run, list_glue_tables, end)

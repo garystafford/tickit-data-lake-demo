@@ -24,51 +24,47 @@ DEFAULT_ARGS = {
 }
 
 with DAG(
-        dag_id=DAG_ID,
-        description="Run all Redshift demonstration DAGs",
-        default_args=DEFAULT_ARGS,
-        dagrun_timeout=timedelta(minutes=45),
-        start_date=days_ago(1),
-        schedule_interval=None,
-        on_failure_callback=_sns_failure_notification,
-        on_success_callback=_sns_success_notification,
-        tags=["redshift demo"],
+    dag_id=DAG_ID,
+    description="Run all Redshift demonstration DAGs",
+    default_args=DEFAULT_ARGS,
+    dagrun_timeout=timedelta(minutes=45),
+    start_date=days_ago(1),
+    schedule_interval=None,
+    on_failure_callback=_sns_failure_notification,
+    on_success_callback=_sns_success_notification,
+    tags=["redshift demo"],
 ) as dag:
-    begin = DummyOperator(
-        task_id="begin"
-    )
+    begin = DummyOperator(task_id="begin")
 
-    end = DummyOperator(
-        task_id="end"
-    )
+    end = DummyOperator(task_id="end")
 
     trigger_dag_01 = TriggerDagRunOperator(
         task_id="trigger_dag_01",
         trigger_dag_id="redshift_demo__01_create_tables",
-        wait_for_completion=True
+        wait_for_completion=True,
     )
 
     trigger_dag_02 = TriggerDagRunOperator(
         task_id="trigger_dag_02",
         trigger_dag_id="redshift_demo__02_initial_load",
-        wait_for_completion=True
+        wait_for_completion=True,
     )
 
     trigger_dag_03 = TriggerDagRunOperator(
         task_id="trigger_dag_03",
         trigger_dag_id="redshift_demo__03_incremental_load",
-        wait_for_completion=True
+        wait_for_completion=True,
     )
 
     trigger_dag_04 = TriggerDagRunOperator(
         task_id="trigger_dag_04",
         trigger_dag_id="redshift_demo__04_unload_data",
-        wait_for_completion=True
+        wait_for_completion=True,
     )
     trigger_dag_05 = TriggerDagRunOperator(
         task_id="trigger_dag_05",
         trigger_dag_id="redshift_demo__05_catalog_and_query",
-        wait_for_completion=True
+        wait_for_completion=True,
     )
 
     chain(
@@ -78,5 +74,5 @@ with DAG(
         trigger_dag_03,
         trigger_dag_04,
         trigger_dag_05,
-        end
+        end,
     )

@@ -22,7 +22,7 @@ DEFAULT_ARGS = {
     "email_on_failure": False,
     "email_on_retry": False,
     "output_location": f"s3://{ATHENA_RESULTS}/",
-    "database": "tickit_demo"
+    "database": "tickit_demo",
 }
 
 AGG_TICKIT_SALES_BY_CATEGORY = f"""
@@ -105,46 +105,37 @@ AGG_TICKIT_SALES_BY_DATE = f"""
 """
 
 with DAG(
-        dag_id=DAG_ID,
-        description="Submit Amazon Athena CTAS queries",
-        default_args=DEFAULT_ARGS,
-        dagrun_timeout=timedelta(minutes=15),
-        start_date=days_ago(1),
-        schedule_interval=None,
-        tags=["data lake demo", "aggregated", "gold"]
+    dag_id=DAG_ID,
+    description="Submit Amazon Athena CTAS queries",
+    default_args=DEFAULT_ARGS,
+    dagrun_timeout=timedelta(minutes=15),
+    start_date=days_ago(1),
+    schedule_interval=None,
+    tags=["data lake demo", "aggregated", "gold"],
 ) as dag:
-    begin = DummyOperator(
-        task_id="begin"
-    )
+    begin = DummyOperator(task_id="begin")
 
-    begin_checks = DummyOperator(
-        task_id="begin_checks"
-    )
+    begin_checks = DummyOperator(task_id="begin_checks")
 
-    end = DummyOperator(
-        task_id="end"
-    )
+    end = DummyOperator(task_id="end")
 
     athena_ctas_submit_category = AWSAthenaOperator(
-        task_id="athena_ctas_submit_category",
-        query=AGG_TICKIT_SALES_BY_CATEGORY
+        task_id="athena_ctas_submit_category", query=AGG_TICKIT_SALES_BY_CATEGORY
     )
 
     athena_ctas_submit_date = AWSAthenaOperator(
-        task_id="athena_ctas_submit_date",
-        query=AGG_TICKIT_SALES_BY_DATE
+        task_id="athena_ctas_submit_date", query=AGG_TICKIT_SALES_BY_DATE
     )
 
     athena_query_by_date = AWSAthenaOperator(
-        task_id="athena_query_by_date",
-        query="sql/query_sales_by_date.sql"
+        task_id="athena_query_by_date", query="sql/query_sales_by_date.sql"
     )
 
     list_glue_tables = BashOperator(
         task_id="list_glue_tables",
         bash_command="""aws glue get-tables --database-name tickit_demo \
                           --query 'TableList[].Name' --expression "agg_*"  \
-                          --output table"""
+                          --output table""",
     )
 
 chain(
@@ -152,5 +143,5 @@ chain(
     (athena_ctas_submit_category, athena_ctas_submit_date),
     begin_checks,
     (athena_query_by_date, list_glue_tables),
-    end
+    end,
 )

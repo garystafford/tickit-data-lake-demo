@@ -21,37 +21,29 @@ DEFAULT_ARGS = {
     "email": ["airflow@example.com"],
     "email_on_failure": False,
     "email_on_retry": False,
-    "postgres_conn_id": "amazon_redshift_dev"
+    "postgres_conn_id": "amazon_redshift_dev",
 }
 
 with DAG(
-        dag_id=DAG_ID,
-        description="Upload aggregated sales data from Redshift to S3",
-        default_args=DEFAULT_ARGS,
-        dagrun_timeout=timedelta(minutes=15),
-        start_date=days_ago(1),
-        schedule_interval=None,
-        tags=["redshift demo"]
+    dag_id=DAG_ID,
+    description="Upload aggregated sales data from Redshift to S3",
+    default_args=DEFAULT_ARGS,
+    dagrun_timeout=timedelta(minutes=15),
+    start_date=days_ago(1),
+    schedule_interval=None,
+    tags=["redshift demo"],
 ) as dag:
-    begin = DummyOperator(
-        task_id="begin"
-    )
+    begin = DummyOperator(task_id="begin")
 
-    end = DummyOperator(
-        task_id="end"
-    )
+    end = DummyOperator(task_id="end")
 
     unload_sales_data = PostgresOperator(
         task_id="unload_sales_data",
         sql="sql/unload_sales_data.sql",
         params={
             "s3_unload_path": S3_UNLOAD_PATH,
-            "redshift_unload_iam_role": REDSHIFT_UNLOAD_IAM_ROLE
-        }
+            "redshift_unload_iam_role": REDSHIFT_UNLOAD_IAM_ROLE,
+        },
     )
 
-    chain(
-        begin,
-        unload_sales_data,
-        end
-    )
+    chain(begin, unload_sales_data, end)

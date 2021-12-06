@@ -26,36 +26,30 @@ DEFAULT_ARGS = {
     "email_on_failure": False,
     "email_on_retry": False,
     "redshift_conn_id": "amazon_redshift_dev",
-    "postgres_conn_id": "amazon_redshift_dev"
+    "postgres_conn_id": "amazon_redshift_dev",
 }
 
 with DAG(
-        dag_id=DAG_ID,
-        description="Load incremental sales and listing data into Amazon Redshift",
-        default_args=DEFAULT_ARGS,
-        dagrun_timeout=timedelta(minutes=15),
-        start_date=days_ago(1),
-        schedule_interval=None,
-        tags=["redshift demo"]
+    dag_id=DAG_ID,
+    description="Load incremental sales and listing data into Amazon Redshift",
+    default_args=DEFAULT_ARGS,
+    dagrun_timeout=timedelta(minutes=15),
+    start_date=days_ago(1),
+    schedule_interval=None,
+    tags=["redshift demo"],
 ) as dag:
-    begin = DummyOperator(
-        task_id="begin"
-    )
+    begin = DummyOperator(task_id="begin")
 
-    begin_qc = DummyOperator(
-        task_id="begin_qc"
-    )
+    begin_qc = DummyOperator(task_id="begin_qc")
 
-    end = DummyOperator(
-        task_id="end"
-    )
+    end = DummyOperator(task_id="end")
 
     check_new_listing_count = SQLThresholdCheckOperator(
         task_id="check_max_date_listing",
         conn_id=DEFAULT_ARGS["redshift_conn_id"],
         sql=f"SELECT COUNT(*) FROM {SCHEMA}.listing WHERE listtime >= {BEGIN_DATE}",
         min_threshold=1,
-        max_threshold=100000
+        max_threshold=100000,
     )
 
     check_new_sales_count = SQLThresholdCheckOperator(
@@ -63,18 +57,18 @@ with DAG(
         conn_id=DEFAULT_ARGS["redshift_conn_id"],
         sql=f"SELECT COUNT(*) FROM {SCHEMA}.sales WHERE saletime >= {BEGIN_DATE}",
         min_threshold=1,
-        max_threshold=100000
+        max_threshold=100000,
     )
 
     for table in TABLES:
         create_staging_tables = PostgresOperator(
             task_id=f"create_table_{table}_staging",
-            sql=f"sql/create_table_{table}_staging.sql"
+            sql=f"sql/create_table_{table}_staging.sql",
         )
 
         truncate_staging_tables = PostgresOperator(
             task_id=f"truncate_table_{table}_staging",
-            sql=f"TRUNCATE TABLE {SCHEMA}.{table}_staging;"
+            sql=f"TRUNCATE TABLE {SCHEMA}.{table}_staging;",
         )
 
         s3_to_staging_tables = S3ToRedshiftOperator(
@@ -83,21 +77,18 @@ with DAG(
             s3_key=f"redshift/data/{table}.gz",
             schema=SCHEMA,
             table=f"{table}_staging",
-            copy_options=["gzip", "delimiter '|'"]
+            copy_options=["gzip", "delimiter '|'"],
         )
 
         merge_staging_data = PostgresOperator(
             task_id=f"merge_{table}",
             sql=f"sql/merge_{table}.sql",
-            params={
-                "begin_date": BEGIN_DATE,
-                "end_date": END_DATE
-            }
+            params={"begin_date": BEGIN_DATE, "end_date": END_DATE},
         )
 
         drop_staging_tables = PostgresOperator(
             task_id=f"drop_{table}_staging",
-            sql=f"DROP TABLE IF EXISTS {SCHEMA}.{table}_staging;"
+            sql=f"DROP TABLE IF EXISTS {SCHEMA}.{table}_staging;",
         )
 
         chain(
@@ -109,5 +100,5 @@ with DAG(
             drop_staging_tables,
             begin_qc,
             (check_new_listing_count, check_new_sales_count),
-            end
+            end,
         )

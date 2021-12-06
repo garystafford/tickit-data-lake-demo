@@ -22,46 +22,42 @@ DEFAULT_ARGS = {
 }
 
 with DAG(
-        dag_id=DAG_ID,
-        description="Prepare for data lake demonstration using simple AWS CLI commands vs. AWS Operators",
-        default_args=DEFAULT_ARGS,
-        dagrun_timeout=timedelta(minutes=10),
-        start_date=days_ago(1),
-        schedule_interval=None,
-        tags=["data lake demo"]
+    dag_id=DAG_ID,
+    description="Prepare for data lake demonstration using simple AWS CLI commands vs. AWS Operators",
+    default_args=DEFAULT_ARGS,
+    dagrun_timeout=timedelta(minutes=10),
+    start_date=days_ago(1),
+    schedule_interval=None,
+    tags=["data lake demo"],
 ) as dag:
-    begin = DummyOperator(
-        task_id="begin"
-    )
+    begin = DummyOperator(task_id="begin")
 
-    end = DummyOperator(
-        task_id="end"
-    )
+    end = DummyOperator(task_id="end")
 
     delete_demo_s3_objects = BashOperator(
         task_id="delete_demo_s3_objects",
-        bash_command=f'aws s3 rm "s3://{S3_BUCKET}/tickit/" --recursive'
+        bash_command=f'aws s3 rm "s3://{S3_BUCKET}/tickit/" --recursive',
     )
 
     list_demo_s3_objects = BashOperator(
         task_id="list_demo_s3_objects",
-        bash_command=f'aws s3api list-objects-v2 --bucket {S3_BUCKET} --prefix tickit/'
+        bash_command=f"aws s3api list-objects-v2 --bucket {S3_BUCKET} --prefix tickit/",
     )
 
     delete_demo_catalog = BashOperator(
         task_id="delete_demo_catalog",
-        bash_command='aws glue delete-database --name tickit_demo || echo "Database tickit_demo not found."'
+        bash_command='aws glue delete-database --name tickit_demo || echo "Database tickit_demo not found."',
     )
 
     create_demo_catalog = BashOperator(
         task_id="create_demo_catalog",
         bash_command="""aws glue create-database --database-input \
-            '{"Name": "tickit_demo", "Description": "Track sales activity for the fictional TICKIT web site"}'"""
+            '{"Name": "tickit_demo", "Description": "Track sales activity for the fictional TICKIT web site"}'""",
     )
 
 chain(
     begin,
     (delete_demo_s3_objects, delete_demo_catalog),
     (list_demo_s3_objects, create_demo_catalog),
-    end
+    end,
 )

@@ -21,40 +21,29 @@ DEFAULT_ARGS = {
     "email": ["airflow@example.com"],
     "email_on_failure": False,
     "email_on_retry": False,
-    "postgres_conn_id": "amazon_redshift_dev"
+    "postgres_conn_id": "amazon_redshift_dev",
 }
 
 with DAG(
-        dag_id=DAG_ID,
-        description="Create permanent tickit_demo schema tables in Amazon Redshift",
-        default_args=DEFAULT_ARGS,
-        dagrun_timeout=timedelta(minutes=15),
-        start_date=days_ago(1),
-        schedule_interval=None,
-        tags=["redshift demo"]
+    dag_id=DAG_ID,
+    description="Create permanent tickit_demo schema tables in Amazon Redshift",
+    default_args=DEFAULT_ARGS,
+    dagrun_timeout=timedelta(minutes=15),
+    start_date=days_ago(1),
+    schedule_interval=None,
+    tags=["redshift demo"],
 ) as dag:
-    begin = DummyOperator(
-        task_id="begin"
-    )
+    begin = DummyOperator(task_id="begin")
 
-    end = DummyOperator(
-        task_id="end"
-    )
+    end = DummyOperator(task_id="end")
 
     create_tables = PostgresOperator(
-        task_id="create_tables",
-        sql="sql/create_tables.sql"
+        task_id="create_tables", sql="sql/create_tables.sql"
     )
 
     for table in TABLES:
         drop_tables = PostgresOperator(
-            task_id=f"drop_table_{table}",
-            sql=f"DROP TABLE IF EXISTS {SCHEMA}.{table};"
+            task_id=f"drop_table_{table}", sql=f"DROP TABLE IF EXISTS {SCHEMA}.{table};"
         )
 
-        chain(
-            begin,
-            drop_tables,
-            create_tables,
-            end
-        )
+        chain(begin, drop_tables, create_tables, end)
