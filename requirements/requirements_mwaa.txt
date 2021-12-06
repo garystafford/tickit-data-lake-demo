@@ -1,0 +1,6 @@
+# Updated for MWAA - Airflow version 2.0.2
+# check here first:https://github.com/aws/aws-mwaa-local-runner/blob/main/docker/config/requirements.txt
+GitPython==3.1.24
+paramiko==2.8.0
+DateTime==4.3
+PyDeequ==1.0.1
