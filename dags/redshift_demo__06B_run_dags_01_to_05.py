@@ -1,5 +1,5 @@
-# Alternative version of dag 06 with notification logic stored in external module
-# Sends notifications to SNS vs. Slack
+# Alternative version of DAG 06 with notification logic stored in external module,
+# which sends notifications to Amazon SNS or Slack.
 
 import os
 from datetime import timedelta
