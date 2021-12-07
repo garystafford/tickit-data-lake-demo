@@ -26,7 +26,7 @@ jobs:
     - name: Confirm Black code compliance (psf/black)
       run: |
         pip install pytest-black
-        pytest ./dags/ --black
+        pytest ./dags/ --black -v
     - name: Test with pytest
       run: |
         pip install pytest pytest-cov
