@@ -4,10 +4,12 @@ on:
   push:
     paths:
       - 'dags/**'
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2

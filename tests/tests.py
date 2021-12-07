@@ -50,7 +50,12 @@ def test_owner_not_airflow(dag_bag):
         assert str.lower(dag.owner) != "airflow"
 
 
-def test_requires_specific_prefix(dag_bag):
+def test_dag_id_contains_prefix(dag_bag):
+    for dag_id, dag in dag_bag.dags.items():
+        assert str.lower(dag_id).find("__") != -1
+
+
+def test_dag_id_requires_specific_prefix(dag_bag):
     for dag_id, dag in dag_bag.dags.items():
         assert str.lower(dag_id).startswith("data_lake__") \
                or str.lower(dag_id).startswith("redshift_demo__")
