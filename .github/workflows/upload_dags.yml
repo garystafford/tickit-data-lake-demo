@@ -6,6 +6,9 @@ on:
       - 'Test DAGs'
     types:
       - completed
+  pull_request:
+    types:
+      - closed
 
 jobs:
   deploy:
