@@ -2,8 +2,11 @@ name: Upload DAGs
 
 on:
   workflow_run:
-    workflows: ["Test DAGs"]
-    types: [completed]
+    workflows:
+      - 'Test DAGs'
+      - 'Merge code'
+    types:
+      - completed
 
 jobs:
   deploy:
