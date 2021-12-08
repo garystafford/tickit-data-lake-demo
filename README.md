@@ -1,4 +1,4 @@
-# DataOp and Analytics on AWS Demonstrations
+# DataOp and Analytics on AWS: Video Demonstrations and Blog Resources
 
 [![Test DAGs](https://github.com/garystafford/tickit-data-lake-demo/actions/workflows/test_dags.yml/badge.svg?branch=main)](https://github.com/garystafford/tickit-data-lake-demo/actions/workflows/test_dags.yml)
 
