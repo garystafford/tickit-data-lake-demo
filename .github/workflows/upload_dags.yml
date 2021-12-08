@@ -4,7 +4,6 @@ on:
   workflow_run:
     workflows:
       - 'Test DAGs'
-      - 'Merge code'
     types:
       - completed
 
