@@ -1,4 +1,4 @@
-# DataOp AWS Video Demonstrations and Blog Posts: Source Code Resources
+# DataOp AWS Video Demonstrations and Blog Posts: Source Code
 
 ## Overview
 
