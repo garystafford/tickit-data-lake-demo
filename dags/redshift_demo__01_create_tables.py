@@ -26,7 +26,7 @@ DEFAULT_ARGS = {
 
 with DAG(
     dag_id=DAG_ID,
-    description="Create permanent tickit_demo schema tables in Amazon Redshift",
+    description="Create tickit_demo schema tables in Amazon Redshift",
     default_args=DEFAULT_ARGS,
     dagrun_timeout=timedelta(minutes=15),
     start_date=days_ago(1),

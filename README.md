@@ -1,4 +1,4 @@
-# DataOp AWS Video Demonstrations and Blog Posts: Source Code Resources
+# DataOp AWS Video Demonstrations and Blog Posts: Source Code
 
 ## Overview
 
@@ -27,7 +27,7 @@ post, [AWS Lakehouse Automation](https://medium.com/@garystafford/aws-lakehouse-
 
 [Amazon Redshift TICKIT Sample Database](https://docs.aws.amazon.com/redshift/latest/dg/c_sampledb.html)
 
-## TICKIT Tables
+### TICKIT Tables
 
 - `tickit.saas.category`
 - `tickit.saas.event`
@@ -37,7 +37,7 @@ post, [AWS Lakehouse Automation](https://medium.com/@garystafford/aws-lakehouse-
 - `tickit.listing`
 - `tickit.sales`
 
-## Naming Conventions
+### Naming Conventions
 
 ```text
 +-------------+--------------------------------------------------------------------+
