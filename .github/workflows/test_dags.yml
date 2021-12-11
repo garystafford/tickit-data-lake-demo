@@ -16,7 +16,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'
+        python-version: '3.7'
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -24,7 +24,7 @@ jobs:
     - name: Lint with flake8
       run: |
         pip install flake8
-        flake8 --ignore E501 ./dags/ --verbose
+        flake8 --ignore E501 ./dags/ -v
     - name: Confirm Black code compliance (psf/black)
       run: |
         pip install pytest-black
@@ -32,7 +32,4 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest pytest-cov
-        cd tests
-        pytest tests.py --no-header -v \
-          --doctest-modules --junitxml=../junit/test-results.xml \
-          --cov=com --cov-report=xml --cov-report=html
+        pytest tests/ --no-header --doctest-modules --cov=dags -v

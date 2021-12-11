@@ -1,3 +1,8 @@
+# Purpose: Pytest test for Data Lake and Redshift
+#          Airflow Demonstration project DAGs
+# Author: Gary A. Stafford
+# Modified: 2021-12-10
+
 import os
 import sys
 
@@ -6,11 +11,12 @@ from airflow.models import DagBag
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../dags/utilities"))
 
-os.environ["AIRFLOW_VAR_DATA_LAKE_BUCKET"] = "my_bucket"
+# Airflow variables called from DAGs under test are stubbed out
+os.environ["AIRFLOW_VAR_DATA_LAKE_BUCKET"] = "test_bucket"
 os.environ["AIRFLOW_VAR_ATHENA_QUERY_RESULTS"] = "SELECT 1;"
-os.environ["AIRFLOW_VAR_SNS_TOPIC"] = "my_topic"
-os.environ["AIRFLOW_VAR_REDSHIFT_UNLOAD_IAM_ROLE"] = "my_role"
-os.environ["AIRFLOW_VAR_GLUE_CRAWLER_IAM_ROLE"] = "my_role"
+os.environ["AIRFLOW_VAR_SNS_TOPIC"] = "test_topic"
+os.environ["AIRFLOW_VAR_REDSHIFT_UNLOAD_IAM_ROLE"] = "test_role_1"
+os.environ["AIRFLOW_VAR_GLUE_CRAWLER_IAM_ROLE"] = "test_role_2"
 
 
 @pytest.fixture(params=["."])
