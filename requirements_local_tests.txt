@@ -1,6 +1,5 @@
 # python3 -m pip install --user -U -r requirements_local_tests.txt
 
 pytest
-#pytest-cov
 pytest-black
 flake8
