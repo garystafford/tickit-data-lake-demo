@@ -5,16 +5,17 @@
 # Modified: 2021-12-11
 # Run this command first: python3 -m pip install --user -U -r requirements_local_tests.txt
 
-echo "Formatting DAGs using black..."
-black ./dags/
+echo "\nFormatting DAGs using black..."
+black dags/
 
-echo "Starting flake8 test..."
-flake8 --ignore E501 ./dags/
+echo "\nStarting flake8 test..."
+flake8 --ignore E501 dags --benchmark
 
-echo "Starting black test..."
-python3 -m pytest ./dags/ --black
+echo "\nStarting black test..."
+python3 -m pytest dags/ --black -v
 
-echo "Starting pytest tests..."
-python3 -m pytest tests/ --no-header --doctest-modules --cov=dags -v
+echo "\nStarting pytest tests..."
+cd tests || exit
+python3 -m pytest tests.py -v
 
-echo "All test completed. Check the results."
+echo "\nAll test completed. Check the results."
