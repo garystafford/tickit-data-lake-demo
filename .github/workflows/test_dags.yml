@@ -24,12 +24,13 @@ jobs:
     - name: Lint with flake8
       run: |
         pip install flake8
-        flake8 --ignore E501 ./dags/ -v
+        flake8 --ignore E501 dags --benchmark -v
     - name: Confirm Black code compliance (psf/black)
       run: |
         pip install pytest-black
-        pytest ./dags/ --black -v
+        pytest dags --black -v
     - name: Test with pytest
       run: |
-        pip install pytest pytest-cov
-        pytest tests/ --no-header --doctest-modules --cov=dags -v
+        pip install pytest
+        cd tests || exit
+        pytest tests.py -v
