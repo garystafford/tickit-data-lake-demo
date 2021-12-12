@@ -16,14 +16,13 @@ DEFAULT_ARGS = {
     "owner": "garystafford",
     "depends_on_past": False,
     "retries": 0,
-    "email": ["airflow@example.com"],
     "email_on_failure": False,
     "email_on_retry": False,
 }
 
 with DAG(
     dag_id=DAG_ID,
-    description="Run AWS Glue ETL Jobs: raw data to refined (silver) data",
+    description="Run AWS Glue ETL Jobs - raw data to refined (silver) data",
     default_args=DEFAULT_ARGS,
     dagrun_timeout=timedelta(minutes=15),
     start_date=days_ago(1),
