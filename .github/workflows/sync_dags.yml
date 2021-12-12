@@ -1,4 +1,4 @@
-name: Upload DAGs
+name: Sync DAGs
 
 on:
   workflow_run:
