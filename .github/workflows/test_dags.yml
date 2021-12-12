@@ -21,15 +21,15 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements/requirements.txt
-    - name: Lint with flake8
+    - name: Lint with Flake8
       run: |
         pip install flake8
         flake8 --ignore E501 dags --benchmark -v
-    - name: Confirm Black code compliance (psf/black)
+    - name: Confirm Black code compliance
       run: |
         pip install pytest-black
         pytest dags --black -v
-    - name: Test with pytest
+    - name: Test with Pytest
       run: |
         pip install pytest
         cd tests || exit

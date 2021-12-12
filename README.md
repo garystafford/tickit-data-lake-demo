@@ -109,3 +109,4 @@ aws s3api list-objects-v2 \
   --query "Contents[].Key" \
   --output table
 ```
+echo "sh ./run_tests_locally.sh" > .git/hooks/pre-push

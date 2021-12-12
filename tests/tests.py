@@ -9,6 +9,7 @@ import sys
 import pytest
 from airflow.models import DagBag
 
+sys.path.append(os.path.join(os.path.dirname(__file__), "../dags"))
 sys.path.append(os.path.join(os.path.dirname(__file__), "../dags/utilities"))
 
 # Airflow variables called from DAGs under test are stubbed out
@@ -19,7 +20,7 @@ os.environ["AIRFLOW_VAR_REDSHIFT_UNLOAD_IAM_ROLE"] = "test_role_1"
 os.environ["AIRFLOW_VAR_GLUE_CRAWLER_IAM_ROLE"] = "test_role_2"
 
 
-@pytest.fixture(params=["."])
+@pytest.fixture(params=["../dags/"])
 def dag_bag(request):
     return DagBag(dag_folder=request.param, include_examples=False)
 
