@@ -9,9 +9,6 @@
 bold=$(tput bold)
 normal=$(tput sgr0)
 
-echo "\nFormatting DAGs using Black..."
-black dags/
-
 echo "\nStarting Flake8 test..."
 flake8 --ignore E501 dags --benchmark || exit 1
 
