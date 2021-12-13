@@ -1,4 +1,4 @@
-# DataOp AWS Video Demonstrations and Blog Posts: Source Code
+# DataOp AWS Video Demo and Blog Post Resources
 
 ## Overview
 
@@ -16,12 +16,18 @@ post, [Building a Data Lake with Apache Airflow](https://garystafford.medium.com
 . Programmatically build a simple Data Lake on AWS using Amazon Managed Workflows for Apache Airflow, AWS Glue, and Amazon Athena.
 
 Source code for video demonstration detailed in the
-post, [AWS Lakehouse Automation](https://medium.com/@garystafford/aws-lakehouse-automation)
+post, [Lakehouse Automation on AWS with Apache Airflow](https://garystafford.medium.com/data-lakehouse-automation-on-aws-1f6db2c60864)
 . Programmatically load data into and upload data from Amazon Redshift using Apache Airflow.
 
 ## Architecture
 
-![Architecture](./diagram/diagram.png)
+### Building a Data Lake with Apache Airflow
+
+![Data Lake Architecture](./diagram/Data_Lake_MWAA.png)
+
+### Lakehouse Automation on AWS with Apache Airflow
+
+![Redshift Architecture](./diagram/Redshift_MWAA.png)
 
 ## TICKIT Sample Database
 
