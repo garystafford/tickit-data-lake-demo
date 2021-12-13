@@ -4,7 +4,7 @@
 
 [![Test DAGs](https://github.com/garystafford/tickit-data-lake-demo/actions/workflows/test_dags.yml/badge.svg?branch=main)](https://github.com/garystafford/tickit-data-lake-demo/actions/workflows/test_dags.yml)
 
-[![Upload DAGs](https://github.com/garystafford/tickit-data-lake-demo/actions/workflows/upload_dags.yml/badge.svg?branch=main)](https://github.com/garystafford/tickit-data-lake-demo/actions/workflows/upload_dags.yml)
+[![Sync DAGs](https://github.com/garystafford/tickit-data-lake-demo/actions/workflows/sync_dags.yml/badge.svg?branch=main)](https://github.com/garystafford/tickit-data-lake-demo/actions/workflows/sync_dags.yml)
 
 Source code for video demonstration detailed in the
 post, [Building a Simple Data Lake on AWS](https://garystafford.medium.com/building-a-simple-data-lake-on-aws-df21ca092e32)

@@ -1,7 +1,8 @@
 #!/bin/sh
 
-if [[ `git status --porcelain` ]]; then
-  black dags/
-else
+# do nothing if there are changes to commit
+if [ -z "$(git status --porcelain)" ]; then
   exit 0
 fi
+
+black dags/

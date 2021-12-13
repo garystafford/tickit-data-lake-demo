@@ -1,8 +1,7 @@
-  #!/bin/sh
+#!/bin/sh
 
-# don't run tests if there are no commits to push
-commits=`git log @{u}..`
-if [ -z "$commits" ]; then
+# do nothing if there are no commits to push
+if [ -z "$(git log @{u}..)" ]; then
     exit 0
 fi
 
