@@ -51,7 +51,7 @@ with DAG(
     create_demo_catalog = BashOperator(
         task_id="create_demo_catalog",
         bash_command="""aws glue create-database --database-input \
-            '{"Name": "tickit_demo", "Description": "Track sales activity for the fictional TICKIT web site"}'""",
+            '{"Name": "tickit_demo", "Description": "Datasets from AWS's E-commerce TICKIT relational database"}'""",
     )
 
 chain(
