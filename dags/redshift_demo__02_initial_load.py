@@ -30,7 +30,6 @@ DEFAULT_ARGS = {
     "owner": "garystafford",
     "depends_on_past": False,
     "retries": 0,
-    "email": ["airflow@example.com"],
     "email_on_failure": False,
     "email_on_retry": False,
     "redshift_conn_id": "amazon_redshift_dev",
