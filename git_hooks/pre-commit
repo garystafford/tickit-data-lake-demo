@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [[ `git status --porcelain` ]]; then
+  black dags/
+else
+  exit 0
+fi

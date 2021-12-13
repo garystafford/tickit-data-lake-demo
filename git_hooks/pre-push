@@ -1,0 +1,9 @@
+  #!/bin/sh
+
+# don't run tests if there are no commits to push
+commits=`git log @{u}..`
+if [ -z "$commits" ]; then
+    exit 0
+fi
+
+sh ./run_tests_locally.sh
