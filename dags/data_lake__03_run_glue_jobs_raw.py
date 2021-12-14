@@ -24,7 +24,7 @@ with DAG(
     dag_id=DAG_ID,
     description="Run AWS Glue ETL Jobs - source data to raw (bronze) data",
     default_args=DEFAULT_ARGS,
-    dagrun_timeout=timedelta(minutes=10),
+    dagrun_timeout=timedelta(minutes=5),
     start_date=days_ago(1),
     schedule_interval=None,
     tags=["data lake demo", "raw", "bronze"],
