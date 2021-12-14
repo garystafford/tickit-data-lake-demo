@@ -16,7 +16,7 @@ DEFAULT_ARGS = {
     "owner": "garystafford",
     "depends_on_past": False,
     "retries": 0,
-    "email_on_failure": False,
+    "email_on_failure": True,
     "email_on_retry": False,
 }
 
@@ -24,7 +24,7 @@ with DAG(
     dag_id=DAG_ID,
     description="Prepare Data Lake Demonstration using BashOperator and AWS CLI commands vs. AWS Operators",
     default_args=DEFAULT_ARGS,
-    dagrun_timeout=timedelta(minutes=10),
+    dagrun_timeout=timedelta(minutes=5),
     start_date=days_ago(1),
     schedule_interval=None,
     tags=["data lake demo"],
