@@ -6,7 +6,13 @@ FROM tickit_demo.event
 WHERE event.eventid = event_staging.eventid;
 
 INSERT INTO tickit_demo.event
-SELECT *
+SELECT
+    eventid,
+    venueid,
+    catid,
+    dateid,
+    eventname,
+    starttime
 FROM tickit_demo.event_staging;
 
 END TRANSACTION;

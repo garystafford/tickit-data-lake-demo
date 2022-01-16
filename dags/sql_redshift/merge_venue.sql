@@ -6,7 +6,12 @@ FROM tickit_demo.venue
 WHERE venue.venueid = venue_staging.venueid;
 
 INSERT INTO tickit_demo.venue
-SELECT *
+SELECT
+    venueid,
+    venuename,
+    venuecity,
+    venuestate,
+    venueseats
 FROM tickit_demo.venue_staging;
 
 END TRANSACTION;
