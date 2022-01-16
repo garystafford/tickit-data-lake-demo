@@ -1,0 +1,16 @@
+{
+    "athena_query_results": "<s3_bucket_name>",
+    "bootstrap_bucket": "<s3_bucket_name>",
+    "data_lake_bucket": "<s3_bucket_name>",
+    "ec2_subnet_id": "<subnet_name>",
+    "emr_ec2_key_pair": "<key_pair_name>",
+    "fail_email": "airflow@example.com",
+    "glue_crawler_iam_role": "<service-role/iam_role_name>",
+    "job_flow_role": "<iam_role_name>",
+    "logs_bucket": "<s3_bucket_name>",
+    "redshift_unload_iam_role": "<iam_arn>",
+    "release_label": "emr-6.5.0",
+    "service_role": "<emr_role_name>",
+    "sns_topic": "<sns_topic_arn>",
+    "work_bucket": "<s3_bucket_name>"
+}
