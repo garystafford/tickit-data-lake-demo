@@ -6,3 +6,7 @@ if [ -z "$(git status --porcelain)" ]; then
 fi
 
 black dags/
+
+sqlfluff fix \
+  --dialect redshift \
+  --ignore parsing,templating dags/sql_redshift/
