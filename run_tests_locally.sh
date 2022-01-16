@@ -27,10 +27,19 @@ popd || exit 1
 
 echo "\nStarting SQLFluff tests..."
 pushd dags || exit 1
-sqlfluff lint --dialect redshift \
+sqlfluff lint \
+  --dialect redshift \
   --ignore parsing,templating \
   --format yaml \
   sql_redshift/ || exit 1
+sqlfluff lint \
+  --dialect hive \
+  --ignore parsing,templating \
+  --format yaml \
+  sql_data_lake/  || exit 1
 popd || exit 1
+
+echo "\nStarting JSON validation test..."
+python -m json.tool airflow_variables/variables.json
 
 echo "${bold}\nAll tests completed successfully! 🥳\n${normal}"

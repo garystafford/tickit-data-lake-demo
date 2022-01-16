@@ -38,11 +38,18 @@ jobs:
         popd || exit
     - name: Test with SQLFluff
       run: |
-        pip install sqlfluff==0.9.0
+        pip install sqlfluff==0.9.1 click==8.0.3
         pushd dags || exit
-        sqlfluff lint --dialect redshift \
+        sqlfluff lint \
+          --dialect redshift \
           --ignore parsing,templating \
           --format github-annotation \
           --disable_progress_bar \
           sql_redshift/ || exit
+        sqlfluff lint \
+          --dialect hive \
+          --ignore parsing,templating \
+          --format github-annotation \
+          --disable_progress_bar \
+          sql_data_lake/ || exit 1
         popd || exit
