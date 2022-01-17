@@ -22,7 +22,7 @@ DEFAULT_ARGS = {
 
 with DAG(
     dag_id=DAG_ID,
-    description="Prepare Data Lake Demonstration using BashOperator and AWS CLI commands vs. AWS Operators",
+    description="Prepare Data Lake Demonstration using BashOperator and AWS CLI vs. AWS Operators",
     default_args=DEFAULT_ARGS,
     dagrun_timeout=timedelta(minutes=5),
     start_date=days_ago(1),
