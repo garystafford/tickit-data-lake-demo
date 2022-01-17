@@ -1,4 +1,5 @@
-SELECT year(caldate) AS sales_year,
+SELECT
+    year(caldate) AS sales_year,
     month(caldate) AS sales_month,
     round(sum(sale_amount), 2) AS sum_sales,
     round(sum(commission), 2) AS sum_commission,
