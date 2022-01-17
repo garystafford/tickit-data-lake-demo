@@ -13,33 +13,33 @@ normal=$(tput sgr0)
 #echo "\nFormatting DAGs using Black..."
 #black dags/
 
-echo "\nStarting Flake8 test..."
-flake8 --ignore E501 dags --benchmark || exit 1
+echo "\n⌛ Starting Flake8 test..."
+python3 -m flake8 --ignore E501 dags --benchmark || exit 1
 
-echo "\nStarting Black test..."
+echo "\n⌛ Starting Black test..."
 python3 -m pytest --cache-clear
 python3 -m pytest dags/ --black -v || exit 1
 
-echo "\nStarting Pytest tests..."
+echo "\n⌛ Starting Pytest tests..."
 pushd tests || exit 1
 python3 -m pytest tests.py -v || exit 1
 popd || exit 1
 
-echo "\nStarting SQLFluff tests..."
+echo "\n⌛ Starting SQLFluff tests..."
 pushd dags || exit 1
-sqlfluff lint \
+python3 -m sqlfluff lint \
   --dialect redshift \
   --ignore parsing,templating \
   --format yaml \
   sql_redshift/ || exit 1
-sqlfluff lint \
+python3 -m sqlfluff lint \
   --dialect hive \
   --ignore parsing,templating \
   --format yaml \
   sql_data_lake/  || exit 1
 popd || exit 1
 
-echo "\nStarting JSON validation test..."
-python -m json.tool airflow_variables/variables.json
+echo "\n⌛ Starting JSON validation test..."
+python3 -m json.tool airflow_variables/variables.json
 
 echo "${bold}\nAll tests completed successfully! 🥳\n${normal}"

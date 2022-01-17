@@ -5,8 +5,8 @@ if [ -z "$(git status --porcelain)" ]; then
   exit 0
 fi
 
-black dags/
+python3 -m black dags/
 
-sqlfluff fix \
+python3 -m  sqlfluff fix \
   --dialect redshift \
   --ignore parsing,templating dags/sql_redshift/
