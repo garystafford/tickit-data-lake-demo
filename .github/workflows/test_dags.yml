@@ -17,26 +17,26 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.7'
-    - name: Install dependencies
+    - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements/requirements.txt
         pip check
-    - name: Lint with Flake8
+    - name: Lint DAGs with Flake8
       run: |
         pip install flake8==4.0.1
         flake8 --ignore E501 dags --benchmark -v
-    - name: Confirm Black code compliance
+    - name: Confirm Black code compliance fo DAGs
       run: |
         pip install pytest-black==0.3.12
         pytest dags --black -v
-    - name: Test with Pytest
+    - name: Test DAGs with Pytest
       run: |
         pip install pytest==6.2.5
         pushd tests || exit
         python3 -m pytest tests.py -v || exit
         popd || exit
-    - name: Test with SQLFluff
+    - name: Lint SQL with SQLFluff
       run: |
         pip install sqlfluff==0.9.1 click==8.0.3
         pushd dags || exit
@@ -45,7 +45,7 @@ jobs:
           --ignore parsing,templating \
           --format github-annotation \
           --disable_progress_bar \
-          sql_redshift/ || exit
+          sql_redshift/ || exit 1
         sqlfluff lint \
           --dialect hive \
           --ignore parsing,templating \
@@ -53,3 +53,7 @@ jobs:
           --disable_progress_bar \
           sql_data_lake/ || exit 1
         popd || exit
+    - name: Validate JSON
+      run: |
+        python -m json.tool \
+          airflow_variables/variables.json || exit 1
