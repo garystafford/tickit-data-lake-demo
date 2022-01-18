@@ -20,15 +20,19 @@ demonstration: [Lakehouse Automation on AWS with Apache Airflow](https://garysta
 Blog
 post: [DevOps for DataOps: Building a CI/CD Pipeline for Apache Airflow DAGs](https://garystafford.medium.com/devops-for-dataops-building-a-ci-cd-pipeline-for-apache-airflow-dags-975e4a622f83). Build an effective CI/CD pipeline to test and deploy your Apache Airflow DAGs to Amazon MWAA using GitHub Actions.
 
-## Architecture
+## Architectures/Workflows
 
-### Building a Data Lake with Apache Airflow
+__DevOps for DataOps__
 
-![Data Lake Architecture](./diagram/Data_Lake_MWAA.png)
+![Data Lake Architecture](./diagram/data-science-on-aws-devops.png)
 
-### Lakehouse Automation on AWS with Apache Airflow
+__Building a Data Lake with Apache Airflow__
 
-![Redshift Architecture](./diagram/Redshift_MWAA.png)
+![Data Lake Architecture](./diagram/data-science-on-aws-dl.png)
+
+__Lakehouse Automation on AWS with Apache Airflow__
+
+![Redshift Architecture](./diagram/data-science-on-aws-dw.png)
 
 ## TICKIT Sample Database
 
