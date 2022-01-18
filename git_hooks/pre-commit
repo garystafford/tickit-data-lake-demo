@@ -9,4 +9,5 @@ python3 -m black dags/
 
 python3 -m  sqlfluff fix \
   --dialect redshift \
-  --ignore parsing,templating dags/sql_redshift/
+  --ignore parsing,templating \
+  dags/sql_redshift/
