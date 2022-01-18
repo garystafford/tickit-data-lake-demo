@@ -39,7 +39,7 @@ python3 -m sqlfluff lint \
   sql_data_lake/  || exit 1
 popd || exit 1
 
-echo "\n⌛ Starting JSON validation test..."
+echo "\n⌛ Starting JSON validation tests..."
 python3 -m json.tool airflow_variables/variables.json
 
 echo "${bold}\nAll tests completed successfully! 🥳\n${normal}"
